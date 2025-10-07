@@ -300,6 +300,104 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Voice System - NEW FEATURES 1931-1934 */}
+        <section className="space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold flex items-center justify-center gap-3">
+              <MessageSquare className="w-10 h-10 text-accent" />
+              Advanced Voice System (Features 1931-1934)
+            </h2>
+            <p className="text-muted-foreground text-lg">અદ્વિતીય Voice Cloning અને Personality Switch</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FeatureCard
+              icon={<MessageSquare className="w-8 h-8" />}
+              title="Harishbhai Voice Clone"
+              description="Default voice with exact tone, pitch, pronunciation અને emotions"
+              gradient="var(--gradient-innovation)"
+            />
+            <FeatureCard
+              icon={<Zap className="w-8 h-8" />}
+              title="Dwiju Voice Switcher"
+              description="Real-time voice change - Aamir Khan, Lata Mangeshkar, કોઈ પણ personality"
+              gradient="var(--gradient-innovation)"
+            />
+            <FeatureCard
+              icon={<Sparkles className="w-8 h-8" />}
+              title="Singers' Voice Integration"
+              description="Bollywood, Tollywood, Hollywood singers - Arijit, Shreya, Ed Sheeran"
+              gradient="var(--gradient-innovation)"
+            />
+            <FeatureCard
+              icon={<Users className="w-8 h-8" />}
+              title="Actors' Mimicry System"
+              description="Famous actors ની voice + facial expressions + gestures sync"
+              gradient="var(--gradient-innovation)"
+            />
+            <FeatureCard
+              icon={<Brain className="w-8 h-8" />}
+              title="Smart Personality Presets"
+              description="Teacher, Judge, Business, Family, Singer, Mimic modes"
+              gradient="var(--gradient-innovation)"
+            />
+            <FeatureCard
+              icon={<Activity className="w-8 h-8" />}
+              title="Live Expression Sync"
+              description="Voice + facial expression + hand gesture perfect synchronization"
+              gradient="var(--gradient-innovation)"
+            />
+          </div>
+          
+          {/* Voice Modes Table */}
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border p-8 mt-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Voice Personality Modes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <GraduationCap className="w-5 h-5 text-primary" />
+                  <h4 className="font-semibold">Teacher Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Calm, educational, soft voice</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl border border-secondary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Scale className="w-5 h-5 text-secondary" />
+                  <h4 className="font-semibold">Judge Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Strong, serious, authoritative</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl border border-accent/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-accent" />
+                  <h4 className="font-semibold">Business Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Formal, professional tone</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-innovation/10 to-innovation/5 rounded-xl border border-innovation/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="w-5 h-5 text-innovation" />
+                  <h4 className="font-semibold">Family Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Emotional, friendly tone</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-primary/10 to-innovation/10 rounded-xl border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <h4 className="font-semibold">Singer Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Musical, rhythmic style</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-accent/10 to-innovation/10 rounded-xl border border-accent/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-5 h-5 text-accent" />
+                  <h4 className="font-semibold">Mimic Mode</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">Entertaining, actor mimicry</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Alert & Safety */}
         <section className="space-y-8">
           <div className="text-center space-y-3">
@@ -352,13 +450,31 @@ const Index = () => {
         {/* Stats Section */}
         <section className="text-center space-y-8 py-16">
           <div className="bg-gradient-to-r from-primary/10 via-innovation/10 to-accent/10 rounded-3xl p-12 border border-primary/20">
-            <h3 className="text-5xl font-bold text-primary mb-4">100+ Modules</h3>
+            <h3 className="text-5xl font-bold text-primary mb-4">1934+ Features</h3>
             <p className="text-2xl text-foreground font-semibold mb-2">
-              World-Class Robot Features
+              World-Class Robot Features Including Advanced Voice System
             </p>
-            <p className="text-lg text-muted-foreground">
-              All features cross-checked with global standards
+            <p className="text-lg text-muted-foreground mb-6">
+              All features cross-checked with global standards + Voice Cloning Technology
             </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+              <div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
+                <p className="text-4xl font-bold text-primary mb-2">100+</p>
+                <p className="text-sm text-muted-foreground">Core Modules</p>
+              </div>
+              <div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
+                <p className="text-4xl font-bold text-secondary mb-2">1930+</p>
+                <p className="text-sm text-muted-foreground">PDF Features</p>
+              </div>
+              <div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
+                <p className="text-4xl font-bold text-accent mb-2">4</p>
+                <p className="text-sm text-muted-foreground">Voice Features</p>
+              </div>
+              <div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
+                <p className="text-4xl font-bold text-innovation mb-2">1934+</p>
+                <p className="text-sm text-muted-foreground">Total Features</p>
+              </div>
+            </div>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Badge variant="outline" className="text-base px-4 py-2">
                 <Brain className="w-4 h-4 mr-2" />
@@ -375,6 +491,10 @@ const Index = () => {
               <Badge variant="outline" className="text-base px-4 py-2">
                 <Shield className="w-4 h-4 mr-2" />
                 Safety First
+              </Badge>
+              <Badge variant="outline" className="text-base px-4 py-2">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Voice Cloning
               </Badge>
             </div>
           </div>
