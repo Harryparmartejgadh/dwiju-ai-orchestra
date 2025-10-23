@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, Heart, GraduationCap, Cpu, Scale, Shield, Waves, Activity, Users, BookOpen, Sprout, TrendingUp, Sparkles, Globe, Eye, Hand, Zap, MessageSquare, FileText, MapPin, Mic, Camera, Radio, Bell, Lock, Database, Smartphone, Wifi, Home, Settings, BarChart3, ClipboardCheck, Thermometer, Stethoscope, Pill, Syringe, TestTube, BrainCircuit, Mountain, Lightbulb, Rocket, Microscope, Calculator, Music, Video, Image as ImageIcon, Headphones, Volume2 } from "lucide-react";
+import { Brain, Heart, GraduationCap, Cpu, Scale, Shield, Waves, Activity, Users, BookOpen, Sprout, TrendingUp, Sparkles, Globe, Eye, Hand, Zap, MessageSquare, FileText, MapPin, Mic, Camera, Radio, Bell, Lock, Database, Smartphone, Wifi, Home, Settings, BarChart3, ClipboardCheck, Thermometer, Stethoscope, Pill, Syringe, TestTube, BrainCircuit, Mountain, Lightbulb, Rocket, Microscope, Calculator, Music, Video, Image as ImageIcon, Headphones, Volume2, Leaf, QrCode, Languages, Package, Bot, Sun, Plane, FlaskConical, ShoppingCart, TreeDeciduous, ScanLine, Blocks } from "lucide-react";
 import { FeatureCard } from "@/components/FeatureCard";
 import { ModuleSection } from "@/components/ModuleSection";
 
@@ -25,8 +25,8 @@ const Index = () => {
                 All In One AI Robo
               </p>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium">
-                એક અદ્વિતીય AI રોબોટ જે 1934+ Advanced Features સાથે Medical, Educational, Humanoid, 
-                Voice Cloning અને Intelligent સિસ્ટમ્સ પૂરા પાડે છે
+                એક અદ્વિતીય AI રોબોટ જે 1950+ Advanced Features સાથે Medical, Educational, Humanoid, 
+                Voice Cloning, AGRI-BOT અને Intelligent સિસ્ટમ્સ પૂરા પાડે છે
               </p>
             </div>
             
@@ -52,16 +52,16 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground font-medium">Main Modules</p>
               </div>
               <div className="p-6 bg-secondary/10 backdrop-blur-sm rounded-2xl border border-secondary/20">
-                <p className="text-4xl font-bold text-secondary mb-2">1930+</p>
-                <p className="text-sm text-muted-foreground font-medium">Core Features</p>
+                <p className="text-4xl font-bold text-secondary mb-2">1950+</p>
+                <p className="text-sm text-muted-foreground font-medium">Total Features</p>
               </div>
               <div className="p-6 bg-accent/10 backdrop-blur-sm rounded-2xl border border-accent/20">
                 <p className="text-4xl font-bold text-accent mb-2">4</p>
                 <p className="text-sm text-muted-foreground font-medium">Voice Systems</p>
               </div>
               <div className="p-6 bg-innovation/10 backdrop-blur-sm rounded-2xl border border-innovation/20">
-                <p className="text-4xl font-bold text-innovation mb-2">1934+</p>
-                <p className="text-sm text-muted-foreground font-medium">Total Features</p>
+                <p className="text-4xl font-bold text-innovation mb-2">16</p>
+                <p className="text-sm text-muted-foreground font-medium">AGRI-BOT Features</p>
               </div>
             </div>
           </div>
@@ -714,7 +714,210 @@ const Index = () => {
           </div>
         </ModuleSection>
 
-        {/* 7. ALERT & SAFETY SYSTEMS */}
+        {/* 7. AGRI-BOT 5000 INTEGRATION (Features 1935-1950) */}
+        <ModuleSection
+          title="AGRI-BOT 5000 Integration (Features 1935-1950)"
+          icon={<Sprout className="w-12 h-12" />}
+          iconColor="text-green-600"
+          description="Advanced Agriculture Technology - Organic Fertilizer System & Smart Farming"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <FeatureCard
+              icon={<Leaf className="w-10 h-10" />}
+              title="AI Organic Fertilizer Synthesizer (1935)"
+              description="સંપૂર્ણપણે સ્વચાલિત સિસ્ટમ અલગ અલગ પ્રકારના જૈવિક ખાતર તૈયાર કરે છે"
+              gradient="linear-gradient(135deg, #84cc16 0%, #65a30d 100%)"
+              features={[
+                "Automated fertilizer synthesis",
+                "Organic quality control",
+                "Multiple recipe support",
+                "Real-time monitoring"
+              ]}
+            />
+            <FeatureCard
+              icon={<Calculator className="w-10 h-10" />}
+              title="Dynamic Recipe Engine (1936)"
+              description="કોઈપણ લિટર મુજબ recipe ingredients નું પ્રમાણ સ્વયં ગણતરી કરે છે"
+              gradient="linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
+              features={[
+                "Auto ingredient calculation",
+                "Precise measurements",
+                "Scalable recipes",
+                "Custom formulations"
+              ]}
+            />
+            <FeatureCard
+              icon={<Thermometer className="w-10 h-10" />}
+              title="IoT Sensor Monitoring (1937)"
+              description="તમામ ટેન્ક, પંપ્સ, સેન્સર real-time data સાથે જોડાય"
+              gradient="linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
+              features={[
+                "Tank level monitoring",
+                "Flow rate tracking",
+                "Temperature sensors",
+                "Real-time alerts"
+              ]}
+            />
+            <FeatureCard
+              icon={<ScanLine className="w-10 h-10" />}
+              title="AI Crop Diagnostic Advisor (1938)"
+              description="પાક/પાંદડાના ફોટા પરથી AI યોગ્ય ખાતર કે ઉપચાર સૂચવે છે"
+              gradient="linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
+              features={[
+                "Crop disease detection",
+                "Soil analysis via photo",
+                "Treatment recommendations",
+                "Nutrient deficiency detection"
+              ]}
+            />
+            <FeatureCard
+              icon={<QrCode className="w-10 h-10" />}
+              title="Blockchain QR Traceability (1939)"
+              description="દરેક બેચ માટે ડિજિટલ સર્ટિફિકેટ અને QR આધારિત quality assurance"
+              gradient="linear-gradient(135deg, #f97316 0%, #ea580c 100%)"
+              features={[
+                "Batch certification",
+                "QR code tracking",
+                "Blockchain verification",
+                "Quality assurance"
+              ]}
+            />
+            <FeatureCard
+              icon={<Eye className="w-10 h-10" />}
+              title="AR/VR Farmer Training (1940)"
+              description="ખેતી ક્રિયા 3D holographic રીતે train કરવી"
+              gradient="linear-gradient(135deg, #ec4899 0%, #db2777 100%)"
+              features={[
+                "3D training simulations",
+                "Holographic demonstrations",
+                "Interactive learning",
+                "Virtual farm tours"
+              ]}
+            />
+            <FeatureCard
+              icon={<Languages className="w-10 h-10" />}
+              title="Multilingual Voice Assistant (1941)"
+              description="ગુજરાતી, હિન્દી, અંગ્રેજી, ચાઇનીઝ વગેરેમાં વૉઇસ કમાન્ડ સપોર્ટ"
+              gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
+              features={[
+                "10+ language support",
+                "Voice commands",
+                "Regional dialect support",
+                "Natural language processing"
+              ]}
+            />
+            <FeatureCard
+              icon={<Package className="w-10 h-10" />}
+              title="Smart Stock Management (1942)"
+              description="ટેન્ક ખાલી થતા સપ્લાયરને આપમેળે order મોકલે છે"
+              gradient="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+              features={[
+                "Auto supplier ordering",
+                "Inventory tracking",
+                "Supply chain automation",
+                "Stock level alerts"
+              ]}
+            />
+            <FeatureCard
+              icon={<Bot className="w-10 h-10" />}
+              title="Robotic Mixing Arm (1943)"
+              description="રોબોટિક આર્મ auto refill અને mixing કરે છે"
+              gradient="linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+              features={[
+                "Automated refilling",
+                "Precision mixing",
+                "Robotic operations",
+                "AI-controlled movements"
+              ]}
+            />
+            <FeatureCard
+              icon={<Users className="w-10 h-10" />}
+              title="Farmer Community Network (1944)"
+              description="ખેડૂતો વચ્ચે માહિતી/recipe શેરિંગ, live support"
+              gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
+              features={[
+                "Knowledge sharing platform",
+                "Community support",
+                "Recipe exchange",
+                "Live expert assistance"
+              ]}
+            />
+            <FeatureCard
+              icon={<Sun className="w-10 h-10" />}
+              title="Solar Hybrid Power (1945)"
+              description="સોલાર + grid + battery integration થી energy self-reliant"
+              gradient="linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
+              features={[
+                "Solar power integration",
+                "Battery optimization",
+                "Energy independence",
+                "Smart grid switching"
+              ]}
+            />
+            <FeatureCard
+              icon={<Settings className="w-10 h-10" />}
+              title="Predictive Maintenance (1946)"
+              description="સેન્સર ડેટાથી fault detection & auto correction"
+              gradient="linear-gradient(135deg, #64748b 0%, #475569 100%)"
+              features={[
+                "Self-diagnosis system",
+                "Fault prediction",
+                "Auto correction",
+                "Maintenance scheduling"
+              ]}
+            />
+            <FeatureCard
+              icon={<Plane className="w-10 h-10" />}
+              title="Drone Smart Spraying (1947)"
+              description="તૈયાર જૈવિક ખાતર drone વડે છાંટવું"
+              gradient="linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
+              features={[
+                "Drone integration",
+                "Smart spraying paths",
+                "Precision agriculture",
+                "Automated field coverage"
+              ]}
+            />
+            <FeatureCard
+              icon={<FlaskConical className="w-10 h-10" />}
+              title="Virtual Lab Analysis (1948)"
+              description="રિયલ-ટાઇમ ખાતર પરીક્ષણ અને ગુણવત્તા ચેક"
+              gradient="linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
+              features={[
+                "pH testing",
+                "Nutrient analysis",
+                "EC measurement",
+                "Quality certification"
+              ]}
+            />
+            <FeatureCard
+              icon={<ShoppingCart className="w-10 h-10" />}
+              title="E-Commerce Marketplace (1949)"
+              description="તૈયાર ઉત્પાદનનું ઓનલાઈન વેચાણ/ખરીદી સિસ્ટમ"
+              gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
+              features={[
+                "Online marketplace",
+                "Organic product sales",
+                "Direct farmer-to-consumer",
+                "Payment gateway integration"
+              ]}
+            />
+            <FeatureCard
+              icon={<TreeDeciduous className="w-10 h-10" />}
+              title="Environmental Impact Analyzer (1950)"
+              description="CO₂ બચત, જમીન સ્વાસ્થ્ય સુધારણા જેવા ઇકો-ઇન્ડિકેટર્સ ટ્રેક કરે છે"
+              gradient="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+              features={[
+                "CO₂ footprint tracking",
+                "Soil health metrics",
+                "Sustainability indicators",
+                "Environmental reporting"
+              ]}
+            />
+          </div>
+        </ModuleSection>
+
+        {/* 8. ALERT & SAFETY SYSTEMS */}
         <ModuleSection
           title="Alert, Safety & GPS Systems"
           icon={<Shield className="w-12 h-12" />}
@@ -800,13 +1003,13 @@ const Index = () => {
         {/* Final Stats Banner */}
         <section className="text-center py-20">
           <div className="bg-gradient-to-r from-primary/20 via-innovation/20 to-accent/20 rounded-3xl p-16 border-2 border-primary/30 shadow-2xl">
-            <h3 className="text-6xl md:text-7xl font-bold text-primary mb-6 animate-pulse">1934+ Features</h3>
+            <h3 className="text-6xl md:text-7xl font-bold text-primary mb-6 animate-pulse">1950+ Features</h3>
             <p className="text-3xl text-foreground font-bold mb-4">
-              World-Class AI Robot System
+              World-Class AI Robot System with AGRI-BOT 5000
             </p>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
               Complete integration of Medical, Educational, Humanoid, Voice Cloning, 
-              અને Safety features - All cross-checked with global standards
+              AGRI-BOT Farming અને Safety features - All cross-checked with global standards
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -858,7 +1061,7 @@ const Index = () => {
                 Powered by Innovation • Designed for Education • Built for Future
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                🤖 1934+ Features • 🌍 Global Standards • 🏆 Award-Winning Project
+                🤖 1950+ Features • 🌾 AGRI-BOT 5000 • 🌍 Global Standards • 🏆 Award-Winning Project
               </p>
             </div>
           </div>
