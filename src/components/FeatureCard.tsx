@@ -1,5 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { useState } from "react";
+import { FeatureModal } from "./FeatureModal";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -10,36 +12,53 @@ interface FeatureCardProps {
 }
 
 export const FeatureCard = ({ icon, title, description, gradient, features }: FeatureCardProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 hover:border-primary/30 overflow-hidden">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" 
-           style={{ background: gradient }} />
-      <CardHeader>
-        <div 
-          className="w-16 h-16 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg"
-          style={{ background: gradient }}
-        >
-          {icon}
-        </div>
-        <CardTitle className="text-xl group-hover:text-primary transition-colors">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <CardDescription className="text-sm leading-relaxed font-medium">
-          {description}
-        </CardDescription>
-        {features && features.length > 0 && (
-          <ul className="text-xs space-y-1 text-muted-foreground">
-            {features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+    <>
+      <Card 
+        className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 hover:border-primary/30 overflow-hidden cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" 
+             style={{ background: gradient }} />
+        <CardHeader>
+          <div 
+            className="w-16 h-16 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg"
+            style={{ background: gradient }}
+          >
+            {icon}
+          </div>
+          <CardTitle className="text-xl group-hover:text-primary transition-colors">
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <CardDescription className="text-sm leading-relaxed font-medium">
+            {description}
+          </CardDescription>
+          {features && features.length > 0 && (
+            <ul className="text-xs space-y-1 text-muted-foreground">
+              {features.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <FeatureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={title}
+        description={description}
+        features={features || []}
+        gradient={gradient}
+        icon={icon}
+      />
+    </>
   );
 };

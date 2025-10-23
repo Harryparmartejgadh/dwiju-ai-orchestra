@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Brain, Heart, GraduationCap, Cpu, Scale, Shield, Waves, Activity, Users, BookOpen, Sprout, TrendingUp, Sparkles, Globe, Eye, Hand, Zap, MessageSquare, FileText, MapPin, Mic, Camera, Radio, Bell, Lock, Database, Smartphone, Wifi, Home, Settings, BarChart3, ClipboardCheck, Thermometer, Stethoscope, Pill, Syringe, TestTube, BrainCircuit, Mountain, Lightbulb, Rocket, Microscope, Calculator, Music, Video, Image as ImageIcon, Headphones, Volume2, Leaf, QrCode, Languages, Package, Bot, Sun, Plane, FlaskConical, ShoppingCart, TreeDeciduous, ScanLine, Blocks } from "lucide-react";
 import { FeatureCard } from "@/components/FeatureCard";
 import { ModuleSection } from "@/components/ModuleSection";
+import { ChatInterface } from "@/components/ChatInterface";
 
 const Index = () => {
   return (
@@ -1067,6 +1068,9 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Floating Chat Interface */}
+      <ChatInterface />
     </div>
   );
 };
