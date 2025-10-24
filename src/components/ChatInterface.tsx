@@ -1,14 +1,17 @@
-import { useState } from "react";
-import { MessageSquare, X, Send, Mic } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "dwiju";
   timestamp: Date;
+  image?: string;
 }
 
 export const ChatInterface = () => {
@@ -16,40 +19,149 @@ export const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "નમસ્તે! હું Dwiju છું. તમને કેવી રીતે મદદ કરી શકું?",
+      text: "નમસ્તે! હું Dwiju છું. તમને કેવી રીતે મદદ કરી શકું? તમે મને લખીને, બોલીને કે છબી બતાવીને પ્રશ્ન પૂછી શકો છો.",
       sender: "dwiju",
       timestamp: new Date(),
     },
   ]);
   const [inputText, setInputText] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const { toast } = useToast();
 
-  const sendMessage = () => {
-    if (!inputText.trim()) return;
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'gu-IN';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+        toast({
+          title: "વૉઇસ Error",
+          description: "વૉઇસ recognition કામ કરી શક્યું નહીં.",
+          variant: "destructive",
+        });
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Unsupported",
+        description: "તમારું browser voice recognition support કરતું નથી.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'gu-IN';
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!inputText.trim() && !selectedImage) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputText,
+      text: inputText || "છબી મોકલી",
       sender: "user",
       timestamp: new Date(),
+      image: selectedImage || undefined,
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputText("");
+    const imageToSend = selectedImage;
+    setSelectedImage(null);
+    setIsLoading(true);
 
-    // Simulate Dwiju response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("chat", {
+        body: {
+          messages: [
+            ...messages.map(m => ({ role: m.sender === "user" ? "user" : "assistant", content: m.text })),
+            { role: "user", content: userMessage.text }
+          ],
+          image: imageToSend
+        },
+      });
+
+      if (error) throw error;
+
       const dwijuResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "તમારા પ્રશ્ન માટે આભાર! હું 1950+ features સાથે તમારી મદદ કરી શકું છું. તમે કયા વિષયમાં રસ ધરાવો છો?",
+        text: data.message,
         sender: "dwiju",
         timestamp: new Date(),
       };
+
       setMessages((prev) => [...prev, dwijuResponse]);
-    }, 1000);
+      speakText(data.message);
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "કંઈક ખોટું થયું.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isLoading) {
       sendMessage();
     }
   };
@@ -106,7 +218,10 @@ export const ChatInterface = () => {
                         : "bg-muted text-foreground"
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    {message.image && (
+                      <img src={message.image} alt="uploaded" className="rounded-lg mb-2 max-w-full" />
+                    )}
+                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                     <p className="text-xs opacity-70 mt-1">
                       {message.timestamp.toLocaleTimeString("en-US", {
                         hour: "2-digit",
@@ -116,25 +231,80 @@ export const ChatInterface = () => {
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted text-foreground p-3 rounded-2xl">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
 
           {/* Input */}
           <div className="p-4 border-t border-border">
+            {selectedImage && (
+              <div className="mb-2 relative inline-block">
+                <img src={selectedImage} alt="selected" className="max-w-[200px] rounded-lg" />
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-6 w-6"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
             <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <Button
+                size="icon"
+                variant="secondary"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
+              >
+                <ImageIcon className="w-5 h-5" />
+              </Button>
+              <Button
+                size="icon"
+                variant={isListening ? "default" : "secondary"}
+                onClick={toggleListening}
+                disabled={isLoading}
+              >
+                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </Button>
               <Input
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="તમારો પ્રશ્ન લખો..."
                 className="flex-1"
+                disabled={isLoading}
               />
-              <Button size="icon" onClick={sendMessage} className="bg-primary hover:bg-primary/90">
+              <Button 
+                size="icon" 
+                onClick={sendMessage} 
+                className="bg-primary hover:bg-primary/90"
+                disabled={isLoading || (!inputText.trim() && !selectedImage)}
+              >
                 <Send className="w-5 h-5" />
               </Button>
-              <Button size="icon" variant="secondary">
-                <Mic className="w-5 h-5" />
-              </Button>
+              {isSpeaking && (
+                <Button size="icon" variant="outline" disabled>
+                  <Volume2 className="w-5 h-5 animate-pulse" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
