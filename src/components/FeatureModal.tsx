@@ -11,6 +11,7 @@ interface FeatureModalProps {
   features: string[];
   gradient: string;
   icon: React.ReactNode;
+  onDemo: () => void;
 }
 
 export const FeatureModal = ({
@@ -21,6 +22,7 @@ export const FeatureModal = ({
   features,
   gradient,
   icon,
+  onDemo,
 }: FeatureModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,7 +62,12 @@ export const FeatureModal = ({
           </div>
 
           <div className="pt-4 border-t">
-            <Button className="w-full" size="lg" style={{ background: gradient }}>
+            <Button 
+              className="w-full" 
+              size="lg" 
+              style={{ background: gradient }}
+              onClick={onDemo}
+            >
               Try Live Demo
             </Button>
           </div>

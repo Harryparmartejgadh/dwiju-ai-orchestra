@@ -18,8 +18,22 @@ interface Message {
 
 type ChatMode = "chat" | "image" | "video" | "music";
 
-export const ChatInterface = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ChatInterfaceProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInterfaceProps = {}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    } else {
+      setInternalIsOpen(open);
+    }
+  };
   const [currentMode, setCurrentMode] = useState<ChatMode>("chat");
   const [messages, setMessages] = useState<Message[]>([
     {
