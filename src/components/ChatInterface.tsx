@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2 } from "lucide-react";
+import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2, Sparkles, Music, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,10 +13,14 @@ interface Message {
   sender: "user" | "dwiju";
   timestamp: Date;
   image?: string;
+  generatedImage?: string;
 }
+
+type ChatMode = "chat" | "image" | "video" | "music";
 
 export const ChatInterface = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentMode, setCurrentMode] = useState<ChatMode>("chat");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -127,13 +132,27 @@ export const ChatInterface = () => {
     setIsLoading(true);
 
     try {
+      let mode = "chat";
+      let prompt = userMessage.text;
+
+      // Determine mode based on current tab
+      if (currentMode === "image") {
+        mode = "generate-image";
+        prompt = `Create a high-quality image: ${userMessage.text}`;
+      } else if (currentMode === "video") {
+        prompt = `Video generation આ માટે: ${userMessage.text}. હું તમને video બનાવવાની પ્રક્રિયા સમજાવી શકું છું.`;
+      } else if (currentMode === "music") {
+        prompt = `Music/Song generation આ માટે: ${userMessage.text}. હું તમને audio બનાવવા માટે સૂચનો આપી શકું છું.`;
+      }
+
       const { data, error } = await supabase.functions.invoke("chat", {
         body: {
           messages: [
             ...messages.map(m => ({ role: m.sender === "user" ? "user" : "assistant", content: m.text })),
-            { role: "user", content: userMessage.text }
+            { role: "user", content: prompt }
           ],
-          image: imageToSend
+          image: imageToSend,
+          mode: mode
         },
       });
 
@@ -144,10 +163,13 @@ export const ChatInterface = () => {
         text: data.message,
         sender: "dwiju",
         timestamp: new Date(),
+        generatedImage: data.image || undefined,
       };
 
       setMessages((prev) => [...prev, dwijuResponse]);
-      speakText(data.message);
+      if (currentMode === "chat") {
+        speakText(data.message);
+      }
     } catch (error: any) {
       console.error("Error:", error);
       toast({
@@ -181,7 +203,7 @@ export const ChatInterface = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-card rounded-2xl shadow-2xl border-2 border-primary/30 z-50 flex flex-col animate-scale-in">
+        <div className="fixed bottom-6 right-6 w-[480px] h-[700px] bg-card rounded-2xl shadow-2xl border-2 border-primary/30 z-50 flex flex-col animate-scale-in">
           {/* Header */}
           <div className="bg-primary text-primary-foreground p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -203,110 +225,144 @@ export const ChatInterface = () => {
             </Button>
           </div>
 
-          {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-2xl ${
-                      message.sender === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    {message.image && (
-                      <img src={message.image} alt="uploaded" className="rounded-lg mb-2 max-w-full" />
-                    )}
-                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted text-foreground p-3 rounded-2xl">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+          {/* Tabs */}
+          <Tabs value={currentMode} onValueChange={(v) => setCurrentMode(v as ChatMode)} className="flex-1 flex flex-col">
+            <TabsList className="grid w-full grid-cols-4 bg-muted/50 m-2">
+              <TabsTrigger value="chat" className="gap-1">
+                <MessageSquare className="w-4 h-4" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger value="image" className="gap-1">
+                <Sparkles className="w-4 h-4" />
+                Image
+              </TabsTrigger>
+              <TabsTrigger value="video" className="gap-1">
+                <Video className="w-4 h-4" />
+                Video
+              </TabsTrigger>
+              <TabsTrigger value="music" className="gap-1">
+                <Music className="w-4 h-4" />
+                Music
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Input */}
-          <div className="p-4 border-t border-border">
-            {selectedImage && (
-              <div className="mb-2 relative inline-block">
-                <img src={selectedImage} alt="selected" className="max-w-[200px] rounded-lg" />
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="absolute -top-2 -right-2 h-6 w-6"
-                  onClick={() => setSelectedImage(null)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+            <TabsContent value={currentMode} className="flex-1 flex flex-col m-0">
+              {/* Messages */}
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] p-3 rounded-2xl ${
+                          message.sender === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        {message.image && (
+                          <img src={message.image} alt="uploaded" className="rounded-lg mb-2 max-w-full" />
+                        )}
+                        {message.generatedImage && (
+                          <img src={message.generatedImage} alt="generated" className="rounded-lg mb-2 max-w-full" />
+                        )}
+                        <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {message.timestamp.toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted text-foreground p-3 rounded-2xl">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+
+              {/* Input */}
+              <div className="p-4 border-t border-border">
+                {selectedImage && (
+                  <div className="mb-2 relative inline-block">
+                    <img src={selectedImage} alt="selected" className="max-w-[200px] rounded-lg" />
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 h-6 w-6"
+                      onClick={() => setSelectedImage(null)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  {currentMode === "chat" && (
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                    >
+                      <ImageIcon className="w-5 h-5" />
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant={isListening ? "default" : "secondary"}
+                    onClick={toggleListening}
+                    disabled={isLoading}
+                  >
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </Button>
+                  <Input
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      currentMode === "image" ? "છબી વર્ણન કરો..." :
+                      currentMode === "video" ? "Video વર્ણન કરો..." :
+                      currentMode === "music" ? "Song/Music વર્ણન કરો..." :
+                      "તમારો પ્રશ્ન લખો..."
+                    }
+                    className="flex-1"
+                    disabled={isLoading}
+                  />
+                  <Button 
+                    size="icon" 
+                    onClick={sendMessage} 
+                    className="bg-primary hover:bg-primary/90"
+                    disabled={isLoading || (!inputText.trim() && !selectedImage)}
+                  >
+                    <Send className="w-5 h-5" />
+                  </Button>
+                  {isSpeaking && (
+                    <Button size="icon" variant="outline" disabled>
+                      <Volume2 className="w-5 h-5 animate-pulse" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            )}
-            <div className="flex gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-              <Button
-                size="icon"
-                variant="secondary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading}
-              >
-                <ImageIcon className="w-5 h-5" />
-              </Button>
-              <Button
-                size="icon"
-                variant={isListening ? "default" : "secondary"}
-                onClick={toggleListening}
-                disabled={isLoading}
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </Button>
-              <Input
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="તમારો પ્રશ્ન લખો..."
-                className="flex-1"
-                disabled={isLoading}
-              />
-              <Button 
-                size="icon" 
-                onClick={sendMessage} 
-                className="bg-primary hover:bg-primary/90"
-                disabled={isLoading || (!inputText.trim() && !selectedImage)}
-              >
-                <Send className="w-5 h-5" />
-              </Button>
-              {isSpeaking && (
-                <Button size="icon" variant="outline" disabled>
-                  <Volume2 className="w-5 h-5 animate-pulse" />
-                </Button>
-              )}
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </>

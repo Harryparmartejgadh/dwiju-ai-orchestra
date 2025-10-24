@@ -11,14 +11,48 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, image } = await req.json();
+    const { messages, image, mode = "chat" } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Prepare system message
+    // Image Generation Mode
+    if (mode === "generate-image") {
+      const prompt = messages[messages.length - 1].content;
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image-preview",
+          messages: [
+            { role: "user", content: prompt }
+          ],
+          modalities: ["image", "text"]
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Image generation failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      
+      return new Response(
+        JSON.stringify({ 
+          message: data.choices[0].message.content || "છબી બનાવી છે",
+          image: imageUrl 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Chat Mode (default)
     const systemMessage = {
       role: "system",
       content: `તમે Dwiju છો - એક અદ્યતન AI સહાયક જે ગુજરાતી અને અંગ્રેજી બોલી શકે છે. તમારી પાસે 1950+ features છે જેમાં medical, educational, humanoid, spiritual, agricultural અને safety features સામેલ છે. તમે:
@@ -29,7 +63,6 @@ serve(async (req) => {
 - હંમેશા મદદરૂપ અને મિત્રવત બનો`
     };
 
-    // Prepare user message with optional image
     let userContent: any;
     if (image) {
       userContent = [
