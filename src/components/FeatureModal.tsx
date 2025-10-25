@@ -66,7 +66,10 @@ export const FeatureModal = ({
               className="w-full" 
               size="lg" 
               style={{ background: gradient }}
-              onClick={onDemo}
+              onClick={() => {
+                onClose();
+                setTimeout(() => onDemo(), 100);
+              }}
             >
               Try Live Demo
             </Button>

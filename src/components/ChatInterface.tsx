@@ -215,9 +215,9 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
         </Button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Full Screen */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[480px] h-[700px] bg-card rounded-2xl shadow-2xl border-2 border-primary/30 z-50 flex flex-col animate-scale-in">
+        <div className="fixed inset-4 md:inset-8 bg-card rounded-2xl shadow-2xl border-2 border-primary/30 z-50 flex flex-col animate-scale-in max-w-7xl mx-auto">
           {/* Header */}
           <div className="bg-primary text-primary-foreground p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
