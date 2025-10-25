@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2, Sparkles, Music, Video } from "lucide-react";
+import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2, Sparkles, Music, Video, RotateCw, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -109,11 +109,31 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
 
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'gu-IN';
+      utterance.pitch = 0.9; // Slightly lower for male voice
+      utterance.rate = 1.0;
+      
+      // Try to select a male voice
+      const voices = window.speechSynthesis.getVoices();
+      const maleVoice = voices.find(voice => 
+        (voice.lang.includes('gu') || voice.lang.includes('hi') || voice.lang.includes('en')) && 
+        (voice.name.toLowerCase().includes('male') || !voice.name.toLowerCase().includes('female'))
+      );
+      if (maleVoice) utterance.voice = maleVoice;
+      
       utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
     }
   };
 
@@ -128,21 +148,32 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
     }
   };
 
-  const sendMessage = async () => {
-    if (!inputText.trim() && !selectedImage) return;
+  const sendMessage = async (retryLastMessage = false) => {
+    if (!retryLastMessage && !inputText.trim() && !selectedImage) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputText || (selectedImage ? "છબી મોકલી" : ""),
-      sender: "user",
-      timestamp: new Date(),
-      image: selectedImage || undefined,
-    };
+    let userMessage: Message;
+    let imageToSend: string | null = null;
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputText("");
-    const imageToSend = selectedImage;
-    setSelectedImage(null);
+    if (retryLastMessage) {
+      // Find the last user message
+      const lastUserMsg = [...messages].reverse().find(m => m.sender === "user");
+      if (!lastUserMsg) return;
+      userMessage = lastUserMsg;
+      imageToSend = lastUserMsg.image || null;
+    } else {
+      userMessage = {
+        id: Date.now().toString(),
+        text: inputText || (selectedImage ? "છબી મોકલી" : ""),
+        sender: "user",
+        timestamp: new Date(),
+        image: selectedImage || undefined,
+      };
+      setMessages((prev) => [...prev, userMessage]);
+      setInputText("");
+      imageToSend = selectedImage;
+      setSelectedImage(null);
+    }
+
     setIsLoading(true);
 
     try {
@@ -158,6 +189,9 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
         mode = "generate-music";
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
       const { data, error } = await supabase.functions.invoke("chat", {
         body: {
           messages: [
@@ -169,11 +203,13 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
         },
       });
 
+      clearTimeout(timeoutId);
+
       if (error) throw error;
 
       const dwijuResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.message,
+        text: data.message || "માફ કરશો, હું તમને જવાબ આપી શક્યો નહીં.",
         sender: "dwiju",
         timestamp: new Date(),
         generatedImage: data.image || undefined,
@@ -187,6 +223,18 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       }
     } catch (error: any) {
       console.error("Error:", error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: error.name === "AbortError" 
+          ? "સમય સમાપ્ત થયો. કૃપા કરીને ફરી પ્રયાસ કરો."
+          : error.message || "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો.",
+        sender: "dwiju",
+        timestamp: new Date(),
+      };
+      
+      setMessages((prev) => [...prev, errorMessage]);
+      
       toast({
         title: "Error",
         description: error.message || "કંઈક ખોટું થયું.",
@@ -269,42 +317,69 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
             <TabsContent value={currentMode} className="flex-1 flex flex-col m-0">
               {/* Messages */}
               <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
+                <div className="space-y-4 max-w-3xl mx-auto">
+                  {messages.map((message, index) => (
+                    <div key={message.id}>
                       <div
-                        className={`max-w-[85%] p-3 rounded-2xl ${
-                          message.sender === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-foreground"
-                        }`}
+                        className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                       >
-                        {message.image && (
-                          <img src={message.image} alt="uploaded" className="rounded-lg mb-2 max-w-full" />
-                        )}
-                        {message.generatedImage && (
-                          <img src={message.generatedImage} alt="generated" className="rounded-lg mb-2 max-w-full" />
-                        )}
-                        <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+                        <div
+                          className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
+                            message.sender === "user"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-foreground border border-border"
+                          }`}
+                        >
+                          {message.image && (
+                            <img src={message.image} alt="uploaded" className="rounded-lg mb-2 max-w-full" />
+                          )}
+                          {message.generatedImage && (
+                            <img src={message.generatedImage} alt="generated" className="rounded-lg mb-2 max-w-full" />
+                          )}
+                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                          <div className="flex items-center justify-between mt-2 gap-2">
+                            <p className="text-xs opacity-70">
+                              {message.timestamp.toLocaleTimeString("gu-IN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                            {message.sender === "dwiju" && (
+                              <div className="flex gap-1">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-6 w-6"
+                                  onClick={() => speakText(message.text)}
+                                  title="બોલો"
+                                >
+                                  <Volume2 className="w-3 h-3" />
+                                </Button>
+                                {index === messages.length - 1 && !isLoading && (
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-6 w-6"
+                                    onClick={() => sendMessage(true)}
+                                    title="ફરી પ્રયાસ કરો"
+                                  >
+                                    <RotateCw className="w-3 h-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-muted text-foreground p-3 rounded-2xl">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                          <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <div className="bg-muted text-foreground p-4 rounded-2xl border border-border shadow-sm">
+                        <div className="flex gap-1.5">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                         </div>
                       </div>
                     </div>
@@ -313,21 +388,21 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
               </ScrollArea>
 
               {/* Input */}
-              <div className="p-4 border-t border-border">
+              <div className="p-4 border-t border-border bg-background">
                 {selectedImage && (
-                  <div className="mb-2 relative inline-block">
-                    <img src={selectedImage} alt="selected" className="max-w-[200px] rounded-lg" />
+                  <div className="mb-3 relative inline-block">
+                    <img src={selectedImage} alt="selected" className="max-w-[200px] rounded-lg shadow-sm" />
                     <Button
                       size="icon"
                       variant="destructive"
-                      className="absolute -top-2 -right-2 h-6 w-6"
+                      className="absolute -top-2 -right-2 h-7 w-7 rounded-full shadow-lg"
                       onClick={() => setSelectedImage(null)}
                     >
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex gap-2 max-w-3xl mx-auto">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -336,52 +411,60 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                     className="hidden"
                   />
                   {currentMode === "chat" && (
-                    <>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isLoading}
-                        title="છબી upload કરો"
-                      >
-                        <ImageIcon className="w-5 h-5" />
-                      </Button>
-                    </>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                      title="છબી upload કરો (Vision)"
+                      className="shrink-0"
+                    >
+                      <ImageIcon className="w-5 h-5" />
+                    </Button>
                   )}
                   <Button
                     size="icon"
-                    variant={isListening ? "default" : "secondary"}
+                    variant={isListening ? "default" : "outline"}
                     onClick={toggleListening}
                     disabled={isLoading}
+                    title={isListening ? "બંધ કરો" : "બોલો"}
+                    className="shrink-0"
                   >
-                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                    {isListening ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
                   </Button>
+                  {isSpeaking && (
+                    <Button 
+                      size="icon" 
+                      variant="outline"
+                      onClick={stopSpeaking}
+                      title="બોલવાનું બંધ કરો"
+                      className="shrink-0"
+                    >
+                      <StopCircle className="w-5 h-5 text-destructive animate-pulse" />
+                    </Button>
+                  )}
                   <Input
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={
-                      currentMode === "image" ? "છબી વર્ણન કરો..." :
-                      currentMode === "video" ? "Video વર્ણન કરો..." :
-                      currentMode === "music" ? "Song/Music વર્ણન કરો..." :
-                      "તમારો પ્રશ્ન લખો..."
+                      currentMode === "image" ? "છબી વર્ણન કરો... (AI generate કરશે)" :
+                      currentMode === "video" ? "Video વર્ણન કરો... (સ્ક્રિપ્ટ અને આયોજન)" :
+                      currentMode === "music" ? "Song/Music વર્ણન કરો... (lyrics અને composition)" :
+                      "તમારો પ્રશ્ન લખો... (👁️ Vision • 🎤 Voice • 💬 Chat)"
                     }
-                    className="flex-1"
+                    className="flex-1 h-12"
                     disabled={isLoading}
                   />
                   <Button 
                     size="icon" 
-                    onClick={sendMessage} 
-                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => sendMessage(false)}
+                    className="bg-primary hover:bg-primary/90 shrink-0 h-12 w-12"
                     disabled={isLoading || (!inputText.trim() && !selectedImage)}
+                    title="મોકલો"
                   >
                     <Send className="w-5 h-5" />
                   </Button>
-                  {isSpeaking && (
-                    <Button size="icon" variant="outline" disabled>
-                      <Volume2 className="w-5 h-5 animate-pulse" />
-                    </Button>
-                  )}
                 </div>
               </div>
             </TabsContent>
