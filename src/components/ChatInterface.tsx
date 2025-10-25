@@ -133,7 +133,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputText || "છબી મોકલી",
+      text: inputText || (selectedImage ? "છબી મોકલી" : ""),
       sender: "user",
       timestamp: new Date(),
       image: selectedImage || undefined,
@@ -152,11 +152,10 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       // Determine mode based on current tab
       if (currentMode === "image") {
         mode = "generate-image";
-        prompt = `Create a high-quality image: ${userMessage.text}`;
       } else if (currentMode === "video") {
-        prompt = `Video generation આ માટે: ${userMessage.text}. હું તમને video બનાવવાની પ્રક્રિયા સમજાવી શકું છું.`;
+        mode = "generate-video";
       } else if (currentMode === "music") {
-        prompt = `Music/Song generation આ માટે: ${userMessage.text}. હું તમને audio બનાવવા માટે સૂચનો આપી શકું છું.`;
+        mode = "generate-music";
       }
 
       const { data, error } = await supabase.functions.invoke("chat", {
@@ -181,7 +180,9 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       };
 
       setMessages((prev) => [...prev, dwijuResponse]);
-      if (currentMode === "chat") {
+      
+      // Auto-speak response in chat mode
+      if (currentMode === "chat" && data.message) {
         speakText(data.message);
       }
     } catch (error: any) {
@@ -221,12 +222,17 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
           {/* Header */}
           <div className="bg-primary text-primary-foreground p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center animate-pulse">
                 <MessageSquare className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-bold text-lg">Dwiju AI Assistant</h3>
-                <p className="text-xs opacity-90">1950+ Features Ready</p>
+                <p className="text-xs opacity-90">
+                  {currentMode === "chat" && "💬 Chat • 👁️ Vision • 🎤 Voice"}
+                  {currentMode === "image" && "🎨 Image Generation • AI Powered"}
+                  {currentMode === "video" && "🎬 Video Scripts & Planning"}
+                  {currentMode === "music" && "🎵 Music & Lyrics Creation"}
+                </p>
               </div>
             </div>
             <Button
@@ -330,14 +336,17 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                     className="hidden"
                   />
                   {currentMode === "chat" && (
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                    >
-                      <ImageIcon className="w-5 h-5" />
-                    </Button>
+                    <>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading}
+                        title="છબી upload કરો"
+                      >
+                        <ImageIcon className="w-5 h-5" />
+                      </Button>
+                    </>
                   )}
                   <Button
                     size="icon"
