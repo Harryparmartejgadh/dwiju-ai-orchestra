@@ -38,6 +38,49 @@ const Index = () => {
               </p>
             </div>
             
+            {/* Ask Dwiju CTA */}
+            <div className="mt-12 p-8 bg-gradient-to-br from-primary/20 via-innovation/20 to-accent/20 backdrop-blur-xl rounded-3xl border-2 border-primary/30 max-w-4xl mx-auto shadow-2xl hover:shadow-[var(--shadow-glow)] transition-all duration-300">
+              <div className="flex flex-col items-center gap-6">
+                <div className="flex items-center gap-4">
+                  <Bot className="w-16 h-16 text-primary animate-pulse" />
+                  <div className="text-left">
+                    <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                      Ask Dwiju
+                    </h2>
+                    <p className="text-lg text-muted-foreground">
+                      ChatGPT જેવું Advanced AI Assistant
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Eye className="w-5 h-5 text-primary" />
+                    <span>Vision</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mic className="w-5 h-5 text-secondary" />
+                    <span>Voice Chat</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ImageIcon className="w-5 h-5 text-accent" />
+                    <span>Image Gen</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Video className="w-5 h-5 text-innovation" />
+                    <span>Video Ideas</span>
+                  </div>
+                </div>
+                <Button 
+                  size="lg" 
+                  onClick={handleOpenChat}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-xl px-12 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  <MessageSquare className="w-6 h-6 mr-3" />
+                  Dwiju સાથે Chat કરો
+                </Button>
+              </div>
+            </div>
+            
             {/* School Info Card */}
             <div className="mt-12 p-8 bg-card/70 backdrop-blur-md rounded-3xl border-2 border-primary/20 max-w-3xl mx-auto space-y-4 shadow-2xl">
               <p className="text-2xl font-bold text-foreground">
