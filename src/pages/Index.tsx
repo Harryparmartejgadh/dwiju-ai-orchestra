@@ -3,16 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Brain, Heart, GraduationCap, Cpu, Scale, Shield, Waves, Activity, Users, BookOpen, Sprout, TrendingUp, Sparkles, Globe, Eye, Hand, Zap, MessageSquare, FileText, MapPin, Mic, Camera, Radio, Bell, Lock, Database, Smartphone, Wifi, Home, Settings, BarChart3, ClipboardCheck, Thermometer, Stethoscope, Pill, Syringe, TestTube, BrainCircuit, Mountain, Lightbulb, Rocket, Microscope, Calculator, Music, Video, Image as ImageIcon, Headphones, Volume2, Leaf, QrCode, Languages, Package, Bot, Sun, Plane, FlaskConical, ShoppingCart, TreeDeciduous, ScanLine, Blocks } from "lucide-react";
 import { FeatureCard } from "@/components/FeatureCard";
 import { ModuleSection } from "@/components/ModuleSection";
-import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 
 const Index = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
-  const handleOpenChat = () => {
-    setIsChatOpen(true);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-innovation/10">
       {/* Hero Section */}
@@ -98,7 +91,6 @@ const Index = () => {
                 "Age & gender prediction",
                 "Face matching with 99% accuracy"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Mic className="w-10 h-10" />}
@@ -111,7 +103,6 @@ const Index = () => {
                 "Voice commands in 3 languages",
                 "Text-to-speech synthesis"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Database className="w-10 h-10" />}
@@ -124,7 +115,6 @@ const Index = () => {
                 "Cross-platform compatibility",
                 "Offline data caching"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Zap className="w-10 h-10" />}
@@ -137,7 +127,6 @@ const Index = () => {
                 "Progress monitoring",
                 "Individual customization"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<FileText className="w-10 h-10" />}
@@ -150,7 +139,6 @@ const Index = () => {
                 "Comparison with standards",
                 "Detailed feedback generation"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<ClipboardCheck className="w-10 h-10" />}
@@ -163,7 +151,6 @@ const Index = () => {
                 "Digital signatures",
                 "Cloud storage backup"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Smartphone className="w-10 h-10" />}
@@ -176,7 +163,6 @@ const Index = () => {
                 "User role controls",
                 "Activity logs viewer"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Radio className="w-10 h-10" />}
@@ -189,7 +175,6 @@ const Index = () => {
                 "Auto-attendance marking",
                 "Entry/exit logging"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -213,7 +198,6 @@ const Index = () => {
                 "Fever detection alert",
                 "Temperature history tracking"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Activity className="w-10 h-10" />}
@@ -226,7 +210,6 @@ const Index = () => {
                 "Pulse waveform display",
                 "Abnormality alerts"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Stethoscope className="w-10 h-10" />}
@@ -239,7 +222,6 @@ const Index = () => {
                 "Trend analysis",
                 "Report generation"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Activity className="w-10 h-10" />}
@@ -252,7 +234,6 @@ const Index = () => {
                 "Arrhythmia detection",
                 "Emergency alerts"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<TestTube className="w-10 h-10" />}
@@ -265,7 +246,6 @@ const Index = () => {
                 "Diabetes risk assessment",
                 "Diet recommendations"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Calculator className="w-10 h-10" />}
@@ -278,7 +258,6 @@ const Index = () => {
                 "Body fat percentage",
                 "Fitness level analysis"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Eye className="w-10 h-10" />}
@@ -291,7 +270,6 @@ const Index = () => {
                 "Eye fatigue detection",
                 "Vision correction advice"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Pill className="w-10 h-10" />}
@@ -304,7 +282,6 @@ const Index = () => {
                 "Nutrition guidance",
                 "Treatment suggestions"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<FileText className="w-10 h-10" />}
@@ -317,7 +294,6 @@ const Index = () => {
                 "Doctor's comments",
                 "Follow-up reminders"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<BarChart3 className="w-10 h-10" />}
@@ -330,7 +306,6 @@ const Index = () => {
                 "Lifestyle recommendations",
                 "Regular monitoring alerts"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<TrendingUp className="w-10 h-10" />}
@@ -343,7 +318,6 @@ const Index = () => {
                 "Comparative analysis",
                 "PDF report export"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -367,7 +341,6 @@ const Index = () => {
                 "Creativity scoring (0-100)",
                 "Improvement suggestions"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<ClipboardCheck className="w-10 h-10" />}
@@ -380,7 +353,6 @@ const Index = () => {
                 "Performance analytics",
                 "Parent notifications"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Radio className="w-10 h-10" />}
@@ -393,7 +365,6 @@ const Index = () => {
                 "Parent SMS alerts",
                 "Monthly reports"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Volume2 className="w-10 h-10" />}
@@ -406,7 +377,6 @@ const Index = () => {
                 "Attendance confirmation",
                 "Audio logs"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<TrendingUp className="w-10 h-10" />}
@@ -419,7 +389,6 @@ const Index = () => {
                 "Class rankings",
                 "Motivation system"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Settings className="w-10 h-10" />}
@@ -432,7 +401,6 @@ const Index = () => {
                 "Staff management",
                 "Resource allocation"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -456,7 +424,6 @@ const Index = () => {
                 "Hand gesture control",
                 "Synchronized movements"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Activity className="w-10 h-10" />}
@@ -469,7 +436,6 @@ const Index = () => {
                 "Obstacle avoidance",
                 "Speed control"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Hand className="w-10 h-10" />}
@@ -482,7 +448,6 @@ const Index = () => {
                 "Safe handling",
                 "Drop prevention"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Eye className="w-10 h-10" />}
@@ -495,7 +460,6 @@ const Index = () => {
                 "Focus adjustment",
                 "Visual attention"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<MessageSquare className="w-10 h-10" />}
@@ -508,7 +472,6 @@ const Index = () => {
                 "Empathetic responses",
                 "Mood adaptation"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Shield className="w-10 h-10" />}
@@ -521,7 +484,6 @@ const Index = () => {
                 "Emergency contacts",
                 "Location sharing"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Lightbulb className="w-10 h-10" />}
@@ -534,7 +496,6 @@ const Index = () => {
                 "Alert signals",
                 "Custom patterns"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -558,7 +519,6 @@ const Index = () => {
                 "Ritual timing",
                 "Custom ceremonies"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Globe className="w-10 h-10" />}
@@ -571,7 +531,6 @@ const Index = () => {
                 "Muhurat selection",
                 "Vedic mantras"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Scale className="w-10 h-10" />}
@@ -584,7 +543,6 @@ const Index = () => {
                 "Case analysis",
                 "Rights information"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Sprout className="w-10 h-10" />}
@@ -597,7 +555,6 @@ const Index = () => {
                 "Animal health check",
                 "Treatment recommendations"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<TrendingUp className="w-10 h-10" />}
@@ -610,7 +567,6 @@ const Index = () => {
                 "Business strategies",
                 "Investment advice"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Microscope className="w-10 h-10" />}
@@ -623,7 +579,6 @@ const Index = () => {
                 "Problem solving",
                 "Research assistance"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -647,7 +602,6 @@ const Index = () => {
                 "Pronunciation clone",
                 "Emotional inflection"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Zap className="w-10 h-10" />}
@@ -660,7 +614,6 @@ const Index = () => {
                 "Actor impressions",
                 "Singer voice modes"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Music className="w-10 h-10" />}
@@ -673,7 +626,6 @@ const Index = () => {
                 "Ed Sheeran tone",
                 "Custom song creation"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Video className="w-10 h-10" />}
@@ -686,7 +638,6 @@ const Index = () => {
                 "Hand gestures matching",
                 "Complete character acting"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<BrainCircuit className="w-10 h-10" />}
@@ -699,7 +650,6 @@ const Index = () => {
                 "Business Mode - Professional",
                 "Family Mode - Friendly"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Activity className="w-10 h-10" />}
@@ -712,7 +662,6 @@ const Index = () => {
                 "Gesture timing",
                 "Natural movements"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
 
@@ -785,7 +734,6 @@ const Index = () => {
                 "Multiple recipe support",
                 "Real-time monitoring"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Calculator className="w-10 h-10" />}
@@ -798,7 +746,6 @@ const Index = () => {
                 "Scalable recipes",
                 "Custom formulations"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Thermometer className="w-10 h-10" />}
@@ -811,7 +758,6 @@ const Index = () => {
                 "Temperature sensors",
                 "Real-time alerts"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<ScanLine className="w-10 h-10" />}
@@ -824,7 +770,6 @@ const Index = () => {
                 "Treatment recommendations",
                 "Nutrient deficiency detection"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<QrCode className="w-10 h-10" />}
@@ -837,7 +782,6 @@ const Index = () => {
                 "Blockchain verification",
                 "Quality assurance"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Eye className="w-10 h-10" />}
@@ -850,7 +794,6 @@ const Index = () => {
                 "Interactive learning",
                 "Virtual farm tours"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Languages className="w-10 h-10" />}
@@ -863,7 +806,6 @@ const Index = () => {
                 "Regional dialect support",
                 "Natural language processing"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Package className="w-10 h-10" />}
@@ -876,7 +818,6 @@ const Index = () => {
                 "Supply chain automation",
                 "Stock level alerts"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Bot className="w-10 h-10" />}
@@ -889,7 +830,6 @@ const Index = () => {
                 "Robotic operations",
                 "AI-controlled movements"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Users className="w-10 h-10" />}
@@ -902,7 +842,6 @@ const Index = () => {
                 "Recipe exchange",
                 "Live expert assistance"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Sun className="w-10 h-10" />}
@@ -915,7 +854,6 @@ const Index = () => {
                 "Energy independence",
                 "Smart grid switching"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Settings className="w-10 h-10" />}
@@ -928,7 +866,6 @@ const Index = () => {
                 "Auto correction",
                 "Maintenance scheduling"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Plane className="w-10 h-10" />}
@@ -941,7 +878,6 @@ const Index = () => {
                 "Precision agriculture",
                 "Automated field coverage"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<FlaskConical className="w-10 h-10" />}
@@ -954,7 +890,6 @@ const Index = () => {
                 "EC measurement",
                 "Quality certification"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<ShoppingCart className="w-10 h-10" />}
@@ -967,7 +902,6 @@ const Index = () => {
                 "Direct farmer-to-consumer",
                 "Payment gateway integration"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<TreeDeciduous className="w-10 h-10" />}
@@ -980,7 +914,6 @@ const Index = () => {
                 "Sustainability indicators",
                 "Environmental reporting"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -1004,7 +937,6 @@ const Index = () => {
                 "Email notifications",
                 "SMS integration"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<MapPin className="w-10 h-10" />}
@@ -1017,7 +949,6 @@ const Index = () => {
                 "Route history",
                 "Safe zone setup"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Database className="w-10 h-10" />}
@@ -1030,7 +961,6 @@ const Index = () => {
                 "Data redundancy",
                 "Quick recovery"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Bell className="w-10 h-10" />}
@@ -1043,7 +973,6 @@ const Index = () => {
                 "Alert scheduling",
                 "Multi-language support"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<Lock className="w-10 h-10" />}
@@ -1056,7 +985,6 @@ const Index = () => {
                 "Activity monitoring",
                 "Secure authentication"
               ]}
-              onDemo={handleOpenChat}
             />
             <FeatureCard
               icon={<BarChart3 className="w-10 h-10" />}
@@ -1069,7 +997,6 @@ const Index = () => {
                 "Performance metrics",
                 "System diagnostics"
               ]}
-              onDemo={handleOpenChat}
             />
           </div>
         </ModuleSection>
@@ -1143,7 +1070,7 @@ const Index = () => {
       </footer>
 
       {/* Floating Chat Interface */}
-      <ChatInterface isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
+      <ChatInterface />
     </div>
   );
 };
