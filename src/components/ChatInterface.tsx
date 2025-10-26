@@ -323,23 +323,23 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
 
       {/* Chat Window - Full Screen */}
       {isOpen && (
-        <div className="fixed inset-0 md:inset-4 lg:inset-8 bg-card rounded-none md:rounded-2xl shadow-2xl border-0 md:border-2 border-primary/30 z-50 flex flex-col animate-scale-in max-w-none md:max-w-7xl md:mx-auto">
+        <div className="fixed inset-0 bg-background z-50 flex flex-col">
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary via-innovation to-primary text-primary-foreground p-4 md:p-5 rounded-t-none md:rounded-t-2xl flex items-center justify-between shadow-lg">
+          <div className="bg-gradient-to-r from-primary via-innovation to-primary text-primary-foreground p-4 flex items-center justify-between shadow-lg flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center animate-pulse shadow-inner">
-                <MessageSquare className="w-7 h-7" />
+              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center animate-pulse shadow-inner">
+                <MessageSquare className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-bold text-xl flex items-center gap-2">
-                  Dwiju AI Assistant
-                  <span className="text-xs px-2 py-1 bg-primary-foreground/20 rounded-full">Online</span>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  Dwiju AI
+                  <span className="text-xs px-2 py-0.5 bg-primary-foreground/20 rounded-full">Online</span>
                 </h3>
-                <p className="text-sm opacity-90 flex items-center gap-2 flex-wrap">
-                  {currentMode === "chat" && "💬 Chat • 👁️ Vision • 🎤 Voice • 🧠 AI Brain"}
-                  {currentMode === "image" && "🎨 Image Generation • ✨ AI Powered"}
-                  {currentMode === "video" && "🎬 Video Scripts • 📝 Planning & Ideas"}
-                  {currentMode === "music" && "🎵 Music Creation • 🎼 Lyrics & Composition"}
+                <p className="text-xs opacity-90 flex items-center gap-2 flex-wrap">
+                  {currentMode === "chat" && "💬 Chat • 👁️ Vision • 🎤 Voice"}
+                  {currentMode === "image" && "🎨 Image Generation"}
+                  {currentMode === "video" && "🎬 Video Planning"}
+                  {currentMode === "music" && "🎵 Music Creation"}
                 </p>
               </div>
             </div>
@@ -361,7 +361,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                 }}
                 className="hover:bg-primary-foreground/20 text-xs"
               >
-                Clear History
+                Clear
               </Button>
               <Button
                 variant="ghost"
@@ -375,29 +375,29 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
           </div>
 
           {/* Tabs */}
-          <Tabs value={currentMode} onValueChange={(v) => setCurrentMode(v as ChatMode)} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-4 bg-muted/50 m-2">
-              <TabsTrigger value="chat" className="gap-1">
+          <Tabs value={currentMode} onValueChange={(v) => setCurrentMode(v as ChatMode)} className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-4 bg-muted/50 mx-2 mt-2 flex-shrink-0">
+              <TabsTrigger value="chat" className="gap-1 text-xs">
                 <MessageSquare className="w-4 h-4" />
                 Chat
               </TabsTrigger>
-              <TabsTrigger value="image" className="gap-1">
+              <TabsTrigger value="image" className="gap-1 text-xs">
                 <Sparkles className="w-4 h-4" />
                 Image
               </TabsTrigger>
-              <TabsTrigger value="video" className="gap-1">
+              <TabsTrigger value="video" className="gap-1 text-xs">
                 <Video className="w-4 h-4" />
                 Video
               </TabsTrigger>
-              <TabsTrigger value="music" className="gap-1">
+              <TabsTrigger value="music" className="gap-1 text-xs">
                 <Music className="w-4 h-4" />
                 Music
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value={currentMode} className="flex-1 flex flex-col m-0 overflow-hidden">
-              {/* Messages */}
-              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              {/* Messages - Scrollable Area */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-4" ref={scrollAreaRef}>
                 <div className="space-y-4 max-w-4xl mx-auto pb-4">
                   {messages.map((message, index) => (
                     <div key={message.id} className="animate-fade-in">
@@ -476,26 +476,24 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                   )}
                   <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
+              </div>
 
-              {/* Input */}
-              <div className="p-4 md:p-5 border-t-2 border-border bg-gradient-to-br from-background to-muted/20 shadow-lg">
+              {/* Input Area - Fixed at Bottom */}
+              <div className="border-t-2 bg-card p-3 md:p-4 space-y-2 flex-shrink-0 shadow-lg">
                 {selectedImage && (
-                  <div className="mb-3 relative inline-block animate-fade-in">
-                    <div className="rounded-xl overflow-hidden border-2 border-primary/30 shadow-lg">
-                      <img src={selectedImage} alt="selected" className="max-w-[250px]" />
-                    </div>
+                  <div className="relative rounded-lg overflow-hidden max-w-xs mx-auto border-2 border-primary mb-2">
+                    <img src={selectedImage} alt="preview" className="w-full" />
                     <Button
                       size="icon"
                       variant="destructive"
-                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full shadow-xl hover:scale-110 transition-transform"
+                      className="absolute top-2 right-2 w-7 h-7"
                       onClick={() => setSelectedImage(null)}
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4" />
                     </Button>
                   </div>
                 )}
-                <div className="flex gap-2 md:gap-3 max-w-4xl mx-auto">
+                <div className="flex gap-2 items-center">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -503,65 +501,63 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                  {currentMode === "chat" && (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={toggleListening}
+                    disabled={isLoading}
+                    className={`h-11 w-11 flex-shrink-0 ${isListening ? "bg-destructive text-destructive-foreground animate-pulse" : ""}`}
+                  >
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </Button>
+                  
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isLoading}
+                    className="h-11 w-11 flex-shrink-0"
+                  >
+                    <ImageIcon className="w-5 h-5" />
+                  </Button>
+                  
+                  {isSpeaking && (
                     <Button
                       size="icon"
                       variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                      title="છબી upload કરો (Vision)"
-                      className="shrink-0 h-12 w-12 hover:bg-primary/10 hover:border-primary"
-                    >
-                      <ImageIcon className="w-5 h-5" />
-                    </Button>
-                  )}
-                  <Button
-                    size="icon"
-                    variant={isListening ? "default" : "outline"}
-                    onClick={toggleListening}
-                    disabled={isLoading}
-                    title={isListening ? "બંધ કરો" : "બોલો"}
-                    className="shrink-0 h-12 w-12 hover:scale-105 transition-transform"
-                  >
-                    {isListening ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
-                  </Button>
-                  {isSpeaking && (
-                    <Button 
-                      size="icon" 
-                      variant="outline"
                       onClick={stopSpeaking}
-                      title="બોલવાનું બંધ કરો"
-                      className="shrink-0 h-12 w-12 hover:bg-destructive/10"
+                      className="h-11 w-11 flex-shrink-0 animate-pulse bg-secondary text-secondary-foreground"
                     >
-                      <StopCircle className="w-5 h-5 text-destructive animate-pulse" />
+                      <StopCircle className="w-5 h-5" />
                     </Button>
                   )}
+                  
                   <Input
+                    type="text"
+                    placeholder={
+                      currentMode === "chat" 
+                        ? "મને કંઈપણ પૂછો... 👁️🎤👂"
+                        : currentMode === "image"
+                        ? "છબી બનાવો... 🎨✨"
+                        : currentMode === "video"
+                        ? "વીડિયો આઈડિયા... 🎬📝"
+                        : "સંગીત બનાવો... 🎵🎼"
+                    }
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder={
-                      currentMode === "image" ? "છબી વર્ણન કરો... (AI generate કરશે) 🎨" :
-                      currentMode === "video" ? "Video idea... (સ્ક્રિપ્ટ અને આયોજન) 🎬" :
-                      currentMode === "music" ? "Song/Music વર્ણન કરો... (lyrics) 🎵" :
-                      "તમારો પ્રશ્ન લખો... (👁️ Vision • 🎤 Voice • 💬 Chat)"
-                    }
-                    className="flex-1 h-12 text-base border-2 focus:border-primary"
                     disabled={isLoading}
+                    className="h-11 text-base flex-1"
                   />
-                  <Button 
-                    size="icon" 
+                  
+                  <Button
                     onClick={() => sendMessage(false)}
-                    className="bg-gradient-to-br from-primary to-innovation hover:from-primary/90 hover:to-innovation/90 shrink-0 h-12 w-12 shadow-md hover:shadow-lg hover:scale-105 transition-all"
                     disabled={isLoading || (!inputText.trim() && !selectedImage)}
-                    title="મોકલો"
+                    className="h-11 px-4 bg-primary hover:bg-primary/90 text-primary-foreground flex-shrink-0 shadow-md"
                   >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  Dwiju can see 👁️, speak 🗣️, listen 👂, and create images 🎨
-                </p>
               </div>
             </TabsContent>
           </Tabs>
