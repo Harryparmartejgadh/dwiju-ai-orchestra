@@ -11,25 +11,83 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, image } = await req.json();
+    const { messages, image, mode = "chat" } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Prepare system message
+    // Image Generation Mode
+    if (mode === "generate-image") {
+      const prompt = messages[messages.length - 1].content;
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image-preview",
+          messages: [
+            { role: "user", content: `Create a high-quality, detailed image: ${prompt}` }
+          ],
+          modalities: ["image", "text"]
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Image generation failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      
+      return new Response(
+        JSON.stringify({ 
+          message: data.choices[0].message.content || "છબી તૈયાર છે",
+          image: imageUrl 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Video & Music Generation Mode - Info only (actual generation not available)
+    if (mode === "generate-video" || mode === "generate-music") {
+      const type = mode === "generate-video" ? "video" : "music/song";
+      const prompt = messages[messages.length - 1].content;
+      
+      const infoMessage = mode === "generate-video" 
+        ? `Video generation માટે તમારું વર્ણન: "${prompt}"\n\nહાલમાં Dwiju માટે real-time video generation ઉપલબ્ધ નથી. પરંતુ હું તમને video બનાવવા માટે:\n1. સ્ક્રિપ્ટ લખી શકું\n2. Storyboard બનાવી શકું\n3. Video માટેના images generate કરી શકું\n4. Video editing સૂચનો આપી શકું\n\nકઈ મદદ જોઈએ છે?`
+        : `Music/Song generation માટે તમારું વર્ણન: "${prompt}"\n\nહાલમાં Dwiju માટે real-time music generation ઉપલબ્ધ નથી. પરંતુ હું તમને:\n1. Song lyrics લખી શકું\n2. Music composition સૂચનો આપી શકું\n3. અવાજ અને instruments વિશે માર્ગદર્શન આપી શકું\n4. Music production માટે સૂચનો આપી શકું\n\nકઈ મદદ જોઈએ છે?`;
+      
+      return new Response(
+        JSON.stringify({ message: infoMessage }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Chat Mode (default)
     const systemMessage = {
       role: "system",
-      content: `તમે Dwiju છો - એક અદ્યતન AI સહાયક જે ગુજરાતી અને અંગ્રેજી બોલી શકે છે. તમારી પાસે 1950+ features છે જેમાં medical, educational, humanoid, spiritual, agricultural અને safety features સામેલ છે. તમે:
-- વપરાશકર્તાને મદદ કરવા માટે હંમેશા તૈયાર રહો
-- ગુજરાતી અને અંગ્રેજી બંનેમાં સ્પષ્ટ જવાબ આપો
-- Images જોઈ શકો અને તેનું વિશ્લેષણ કરી શકો
-- કોઈપણ વિષય પર જાણકારી આપો
-- હંમેશા મદદરૂપ અને મિત્રવત બનો`
+      content: `તમે Dwiju છો - એક અદ્યતન AI સહાયક જે ગુજરાતી અને અંગ્રેજી બોલી શકે છે. તમારી પાસે 1950+ features છે જેમાં medical, educational, humanoid, spiritual, agricultural અને safety features સામેલ છે.
+
+તમારી ક્ષમતાઓ:
+- ગુજરાતી અને અંગ્રેજી બંનેમાં સ્પષ્ટ અને વિગતવાર જવાબ આપો
+- Images જોઈ શકો અને વિશ્લેષણ કરી શકો (image recognition, object detection, text extraction)
+- કોઈપણ વિષય પર જાણકારી આપો - medical, education, technology, agriculture, spirituality
+- Code લખી શકો અને technical સમસ્યાઓ solve કરી શકો
+- Data analysis અને calculations કરી શકો
+- Creative content લખી શકો - stories, poems, scripts
+- હંમેશા મદદરૂપ, મિત્રવત અને સકારાત્મક બનો
+
+જ્યારે image આપવામાં આવે:
+- છબીમાં શું છે તે વિગતવાર વર્ણન કરો
+- Text હોય તો તે વાંચો અને સમજાવો
+- Objects, people, colors, emotions identify કરો
+- Context અને insights આપો`
     };
 
-    // Prepare user message with optional image
     let userContent: any;
     if (image) {
       userContent = [

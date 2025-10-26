@@ -9,10 +9,16 @@ interface FeatureCardProps {
   description: string;
   gradient: string;
   features?: string[];
+  onDemo?: () => void;
 }
 
-export const FeatureCard = ({ icon, title, description, gradient, features }: FeatureCardProps) => {
+export const FeatureCard = ({ icon, title, description, gradient, features, onDemo }: FeatureCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleDemo = () => {
+    setIsModalOpen(false);
+    onDemo?.();
+  };
 
   return (
     <>
@@ -58,6 +64,7 @@ export const FeatureCard = ({ icon, title, description, gradient, features }: Fe
         features={features || []}
         gradient={gradient}
         icon={icon}
+        onDemo={handleDemo}
       />
     </>
   );
