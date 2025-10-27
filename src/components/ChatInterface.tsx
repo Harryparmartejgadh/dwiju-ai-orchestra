@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2, Sparkles, Music, Video, RotateCw, StopCircle, Loader2 } from "lucide-react";
+import { MessageSquare, X, Send, Mic, Image as ImageIcon, MicOff, Volume2, Sparkles, Music, Video, RotateCw, StopCircle, Loader2, Camera, MessageCircle, Volume, AudioLines } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +18,7 @@ interface Message {
 }
 
 type ChatMode = "chat" | "image" | "video" | "music";
+type ReplyMode = "text" | "voice" | "both";
 
 interface ChatInterfaceProps {
   isOpen?: boolean;
@@ -36,6 +37,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
     }
   };
   const [currentMode, setCurrentMode] = useState<ChatMode>("chat");
+  const [replyMode, setReplyMode] = useState<ReplyMode>("both");
   const [messages, setMessages] = useState<Message[]>(() => {
     // Load saved messages from localStorage
     const saved = localStorage.getItem('dwiju-chat-history');
@@ -188,6 +190,45 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
     }
   };
 
+  const captureFromCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" } 
+      });
+      
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      await new Promise(resolve => {
+        video.onloadedmetadata = resolve;
+      });
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(video, 0, 0);
+      
+      stream.getTracks().forEach(track => track.stop());
+      
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      setSelectedImage(dataUrl);
+      
+      toast({
+        title: "ફોટો લીધો",
+        description: "કેમેરાથી છબી capture થઈ ગઈ",
+      });
+    } catch (error) {
+      console.error('Camera error:', error);
+      toast({
+        title: "કેમેરા Error",
+        description: "કેમેરા ઍક્સેસ મળી શક્યું નહીં. કૃપા કરીને permission આપો.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const sendMessage = async (retryLastMessage = false) => {
     if (!retryLastMessage && !inputText.trim() && !selectedImage) return;
 
@@ -268,18 +309,29 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
 
       setMessages((prev) => [...prev, dwijuResponse]);
       
-      if (currentMode === "chat" && data.message && !data.image) {
+      // Voice response based on reply mode
+      if (currentMode === "chat" && data.message && !data.image && (replyMode === "voice" || replyMode === "both")) {
         setTimeout(() => speakText(data.message), 300);
       }
     } catch (error: any) {
       console.error("Chat error:", error);
       
       let errorText = "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો.";
+      let isApiKeyError = false;
       
       if (error.name === "AbortError") {
         errorText = "સમય સમાપ્ત થયો. કૃપા કરીને ફરી પ્રયાસ કરો.";
       } else if (error.message?.includes("Failed to fetch")) {
         errorText = "નેટવર્ક એરર. તમારું કનેક્શન ચેક કરો.";
+      } else if (error.message?.includes("API") || error.message?.includes("key") || error.message?.includes("configured")) {
+        errorText = "⚠️ API Key Error: કોઈ API key ખોટી અથવા missing છે. કૃપા કરીને settings check કરો.";
+        isApiKeyError = true;
+      } else if (error.message?.includes("Rate limit")) {
+        errorText = "⚠️ Rate Limit: ઘણા બધા requests. થોડી વાર પછી પ્રયાસ કરો.";
+        isApiKeyError = true;
+      } else if (error.message?.includes("Payment")) {
+        errorText = "⚠️ Payment Required: API credits ખલાસ થઈ ગયા છે. કૃપા કરીને recharge કરો.";
+        isApiKeyError = true;
       }
       
       const errorMessage: Message = {
@@ -293,9 +345,10 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       setMessages((prev) => [...prev, errorMessage]);
       
       toast({
-        title: "Error",
+        title: isApiKeyError ? "⚠️ API Configuration Error" : "Error",
         description: errorText,
         variant: "destructive",
+        duration: isApiKeyError ? 10000 : 5000,
       });
     } finally {
       setIsLoading(false);
@@ -370,6 +423,40 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                 className="hover:bg-primary-foreground/20"
               >
                 <X className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Reply Mode Toggle */}
+          <div className="bg-muted/30 px-4 py-2 flex items-center justify-center gap-3 border-b flex-shrink-0">
+            <span className="text-xs font-medium text-muted-foreground">Reply Mode:</span>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant={replyMode === "text" ? "default" : "outline"}
+                onClick={() => setReplyMode("text")}
+                className="h-8 px-3 text-xs gap-1"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Text Only
+              </Button>
+              <Button
+                size="sm"
+                variant={replyMode === "voice" ? "default" : "outline"}
+                onClick={() => setReplyMode("voice")}
+                className="h-8 px-3 text-xs gap-1"
+              >
+                <Volume className="w-3 h-3" />
+                Voice Only
+              </Button>
+              <Button
+                size="sm"
+                variant={replyMode === "both" ? "default" : "outline"}
+                onClick={() => setReplyMode("both")}
+                className="h-8 px-3 text-xs gap-1"
+              >
+                <AudioLines className="w-3 h-3" />
+                Both
               </Button>
             </div>
           </div>
@@ -517,8 +604,20 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isLoading}
                     className="h-11 w-11 flex-shrink-0"
+                    title="ફાઈલમાંથી છબી પસંદ કરો"
                   >
                     <ImageIcon className="w-5 h-5" />
+                  </Button>
+                  
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={captureFromCamera}
+                    disabled={isLoading}
+                    className="h-11 w-11 flex-shrink-0"
+                    title="કેમેરાથી ફોટો લો"
+                  >
+                    <Camera className="w-5 h-5" />
                   </Button>
                   
                   {isSpeaking && (
