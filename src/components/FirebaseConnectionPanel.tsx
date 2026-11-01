@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { firebaseConfigured, firebaseSignIn, firebaseSignOut, writeUserDeviceStatus, watchUserDeviceStatus } from '@/integrations/firebase/realtime';
+import { firebaseConfigured, firebaseSignIn, firebaseSignOut, watchFirebaseAuth, writeUserDeviceStatus, watchUserDeviceStatus } from '@/integrations/firebase/realtime';
 
 export function FirebaseConnectionPanel() {
   const [message, setMessage] = useState('Not connected');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(0);
+  useEffect(() => {
+    if (!firebaseConfigured()) return;
+    return watchFirebaseAuth(() => setSession(n => n + 1));
+  }, []);
   useEffect(() => {
     if (!firebaseConfigured()) {
       setMessage('Firebase not configured — live telemetry unavailable');
