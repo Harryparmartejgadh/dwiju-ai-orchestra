@@ -24,7 +24,7 @@ jobs:
       - name: Validate proposed rules JSON
         run: node -e "const r=require('./firebase.database.rules.json').rules; if(!r.users || !Object.keys(r.users).some(k=>k.charCodeAt(0)===36)) process.exit(1)"
       - name: Commit regenerated lockfile only to integration branch
-        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/firebase-realtime-no-loss-20261101'
         run: |
           if ! git diff --quiet -- package-lock.json; then
             git config user.name "github-actions[bot]"
@@ -34,7 +34,8 @@ jobs:
             git commit -m "build(firebase): synchronize npm lockfile"
             git push origin HEAD:feature/firebase-realtime-no-loss-20261101
           fi
-      - name: Require committed lockfile
+      - name: Require committed lockfile on branch pushes
+        if: github.event_name == 'push'
         run: |
           if ! git diff --quiet -- package-lock.json; then
             echo "::error::Lockfile drift remains"
