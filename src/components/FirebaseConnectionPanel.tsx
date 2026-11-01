@@ -6,9 +6,10 @@ export function FirebaseConnectionPanel() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(0);
+  const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     if (!firebaseConfigured()) return;
-    return watchFirebaseAuth(() => setSession(n => n + 1));
+    return watchFirebaseAuth(uid => { setSignedIn(Boolean(uid)); setSession(n => n + 1); });
   }, []);
   useEffect(() => {
     if (!firebaseConfigured()) {
@@ -37,13 +38,13 @@ export function FirebaseConnectionPanel() {
       <input aria-label="Firebase email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Firebase email" className="border rounded px-2 py-1" />
       <input aria-label="Firebase password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="border rounded px-2 py-1" />
       <button type="submit" className="border rounded px-3 py-1">Sign in</button>
-      <button type="button" className="border rounded px-3 py-1" onClick={async () => {
+      <button type="button" disabled={!signedIn} className="border rounded px-3 py-1 disabled:opacity-50" onClick={async () => {
         try {
           await writeUserDeviceStatus('dwiju-browser-test', { kind: 'web-test', source: 'website', message: 'Authenticated browser test only; not hardware telemetry' });
           setMessage('Test status written; waiting for realtime confirmation');
         } catch { setMessage('Test write failed; verify sign-in and database rules'); }
       }}>Test write</button>
-      <button type="button" className="border rounded px-3 py-1" onClick={async () => {
+      <button type="button" disabled={!signedIn} className="border rounded px-3 py-1 disabled:opacity-50" onClick={async () => {
         try { await firebaseSignOut(); setSession(n => n + 1); setMessage('Signed out'); }
         catch { setMessage('Sign-out failed'); }
       }}>Sign out</button>
