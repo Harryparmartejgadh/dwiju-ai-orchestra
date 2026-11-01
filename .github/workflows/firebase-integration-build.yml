@@ -1,0 +1,30 @@
+name: Firebase additive integration build
+on:
+  push:
+    branches:
+      - feature/firebase-realtime-no-loss-20261101
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regenerate lockfile in CI workspace
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Ensure Firebase dependency resolves
+        run: npm ci
+      - name: Production build
+        run: npm run build
+      - name: Validate proposed rules JSON
+        run: node -e "const r=require('./firebase.database.rules.json').rules; if(!r.users || !r.users['$uid']) process.exit(1)"
+      - name: Report lockfile drift
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            echo "::warning::package-lock.json requires committing the regenerated dependency lock before merge"
+          fi
