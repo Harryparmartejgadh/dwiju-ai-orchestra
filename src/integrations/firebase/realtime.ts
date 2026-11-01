@@ -33,7 +33,13 @@ export function firebaseConfigured(): boolean {
 
 function services() {
   if (!firebaseConfigured()) throw new Error('Firebase is not configured; no live sync is available');
-  const app = getApps().find(existing => existing.name === 'dwiju-firebase' && existing.options.projectId === config.projectId) ?? (getApps().some(existing => existing.name === 'dwiju-firebase') ? (() => { throw new Error('Dwiju Firebase app is configured for a different project'); })() : initializeApp(config, 'dwiju-firebase'));
+  const existing = getApps().find(app => app.name === 'dwiju-firebase');
+  if (existing && (existing.options.projectId !== config.projectId ||
+      existing.options.databaseURL !== config.databaseURL ||
+      existing.options.appId !== config.appId)) {
+    throw new Error('Dwiju Firebase app configuration mismatch');
+  }
+  const app = existing ?? initializeApp(config, 'dwiju-firebase');
   return { auth: getAuth(app), db: getDatabase(app) };
 }
 
