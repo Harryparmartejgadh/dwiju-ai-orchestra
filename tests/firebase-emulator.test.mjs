@@ -43,3 +43,19 @@ test('web and Android clients share identical authenticated RTDB paths',async()=
   assert.equal((await assertSucceeds(get(ref(web,path)))).val().revision,2);
  }
 });
+
+test('device command queue and telemetry remain owner scoped without inventing ACK',async()=>{
+ const owner=env.authenticatedContext('operator-1').database();
+ const outsider=env.authenticatedContext('operator-2').database();
+ const commandPath='deviceCommands/operator-1/pump-T1';
+ const telemetryPath='deviceTelemetry/operator-1/pump-T1';
+ await assertSucceeds(set(ref(owner,commandPath),{id:'pump-T1',action:'START',status:'PENDING',requestedAt:100}));
+ const pending=(await assertSucceeds(get(ref(owner,commandPath)))).val();
+ assert.equal(pending.status,'PENDING');
+ assert.equal(pending.acknowledgedAt,undefined);
+ await assertFails(get(ref(outsider,commandPath)));
+ await assertFails(set(ref(outsider,commandPath),{status:'ACKNOWLEDGED'}));
+ await assertSucceeds(set(ref(owner,telemetryPath),{connected:false,verified:false}));
+ assert.equal((await assertSucceeds(get(ref(owner,telemetryPath)))).val().verified,false);
+ await assertFails(get(ref(outsider,telemetryPath)));
+});
