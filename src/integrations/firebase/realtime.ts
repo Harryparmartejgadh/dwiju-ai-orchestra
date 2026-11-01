@@ -3,7 +3,7 @@
  * Existing Supabase clients and routes remain unchanged.
  * Install firebase SDK before importing this module.
  */
-import { initializeApp, getApp, getApps } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getDatabase, onValue, ref, set, serverTimestamp, type Unsubscribe } from 'firebase/database';
 
@@ -58,4 +58,26 @@ export function watchUserDeviceStatus(deviceId: string, onData: (data: unknown) 
   if (!uid) throw new Error('Firebase authentication required');
   if (!/^[a-zA-Z0-9_-]{1,80}$/.test(deviceId)) throw new Error('Invalid device ID');
   return onValue(ref(db, `users/${uid}/deviceStatus/${deviceId}`), snap => onData(snap.val()), onError);
+}
+
+/**
+ * Read-only health, device telemetry and command views.
+ * Writes to these paths require a trusted backend/device gateway;
+ * the browser must never fabricate sensor measurements or ACKs.
+ */
+export type DwijuReadOnlyCollection = 'healthRecords' | 'deviceTelemetry' | 'deviceCommands';
+export function watchUserReadOnlyCollection(
+  collection: DwijuReadOnlyCollection,
+  recordId: string,
+  onData: (data: unknown) => void,
+  onError: (error: Error) => void,
+): Unsubscribe {
+  const { auth, db } = services();
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('Firebase authentication required');
+  if (!['healthRecords', 'deviceTelemetry', 'deviceCommands'].includes(collection)) {
+    throw new Error('Invalid Firebase collection');
+  }
+  if (!/^[a-zA-Z0-9_-]{1,80}$/.test(recordId)) throw new Error('Invalid record ID');
+  return onValue(ref(db, `users/${uid}/${collection}/${recordId}`), snap => onData(snap.val()), onError);
 }
