@@ -15,7 +15,12 @@ const fs = require('node:fs');
     await assertFails(b.ref('users/userA/deviceStatus/test').set({ status: 'tampered' }));
     await assertFails(guest.ref('users/userA/deviceStatus/test').once('value'));
     await assertFails(guest.ref('users/userA/deviceStatus/test').set({ status: 'tampered' }));
-    await assertFails(a.ref('users/userA/healthRecords/secret').set({ value: 1 }));
+    for (const collection of ['healthRecords', 'deviceTelemetry', 'deviceCommands']) {
+      await assertFails(a.ref('users/userA/' + collection + '/test').set({ forged: true }));
+      await assertFails(b.ref('users/userA/' + collection).once('value'));
+      await assertFails(guest.ref('users/userA/' + collection).once('value'));
+      await assertSucceeds(a.ref('users/userA/' + collection).once('value'));
+    }
     await assertFails(a.ref('users/userA').once('value'));
     console.log('Firebase RTDB security isolation and path scope: PASS');
   } finally { await env.cleanup(); }
