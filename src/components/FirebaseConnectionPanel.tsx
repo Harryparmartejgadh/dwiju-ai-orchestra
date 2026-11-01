@@ -12,7 +12,7 @@ export function FirebaseConnectionPanel() {
       return;
     }
     try {
-      const stop = watchUserDeviceStatus('dwiju', data => {
+      const stop = watchUserDeviceStatus('dwiju-browser-test', data => {
         setMessage(data ? 'Authenticated Firebase device status received' : 'Connected; no device status yet');
       }, () => setMessage('Firebase read denied or connection failed'));
       return () => stop();
@@ -35,7 +35,7 @@ export function FirebaseConnectionPanel() {
       <button type="submit" className="border rounded px-3 py-1">Sign in</button>
       <button type="button" className="border rounded px-3 py-1" onClick={async () => {
         try {
-          await writeUserDeviceStatus('dwiju', { kind: 'web-test', source: 'website', message: 'Authenticated browser test only; not hardware telemetry' });
+          await writeUserDeviceStatus('dwiju-browser-test', { kind: 'web-test', source: 'website', message: 'Authenticated browser test only; not hardware telemetry' });
           setMessage('Test status written; waiting for realtime confirmation');
         } catch { setMessage('Test write failed; verify sign-in and database rules'); }
       }}>Test write</button>
