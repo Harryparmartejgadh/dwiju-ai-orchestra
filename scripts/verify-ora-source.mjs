@@ -8,11 +8,11 @@ const rows = [];
 for (const [index, match] of cardBlocks.entries()) {
  const title = match[1];
  const bullets = [...match[2].matchAll(/"([^"]+)"/g)].map(x=>x[1]);
- rows.push({id:'ora-card-'+String(index+1).padStart(3,'0'),name:title,source:'src/pages/Index.tsx',status:'NOT_IMPLEMENTED',reason:'Presentation card routes Demo to general chat; no feature-specific runtime handler proven',bullets});
+ rows.push({id:'ora-card-'+String(index+1).padStart(3,'0'),name:title,source:'src/pages/Index.tsx',masterFeatureId:null,masterTraceability:'SOURCE_MISSING',status:'NOT_IMPLEMENTED',reason:'Presentation card routes Demo to general chat; no feature-specific runtime handler proven',bullets});
 }
 const evidence = {
  schemaVersion:1,
- sourceRevision:'local-checkout',
+ sourceRevision:process.env.GITHUB_SHA || 'local-checkout',
  claimedOraFeatures:670,
  claimVerified:false,
  cardCount:rows.length,
