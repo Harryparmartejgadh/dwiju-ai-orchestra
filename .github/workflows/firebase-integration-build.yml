@@ -22,7 +22,7 @@ jobs:
       - name: Production build
         run: npm run build
       - name: Validate proposed rules JSON
-        run: node -e "const r=require('./firebase.database.rules.json').rules; if(!r.users || !r.users['$uid']) process.exit(1)"
+        run: node -e "const r=require('./firebase.database.rules.json').rules; if(!r.users || !Object.keys(r.users).some(k=>k.charCodeAt(0)===36)) process.exit(1)"
       - name: Report lockfile drift
         run: |
           if ! git diff --quiet -- package-lock.json; then
