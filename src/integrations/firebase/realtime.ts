@@ -28,7 +28,7 @@ export async function firebaseSignOut(): Promise<void> {
   await signOut(auth);
 }
 export function firebaseConfigured(): boolean {
-  return Object.values(config).every(value => typeof value === 'string' && value.trim().length > 0);
+  return Object.values(config).every(value => typeof value === 'string' && value.trim().length > 0) && config.projectId === 'bhilodiya-health-robo';
 }
 
 function services() {
