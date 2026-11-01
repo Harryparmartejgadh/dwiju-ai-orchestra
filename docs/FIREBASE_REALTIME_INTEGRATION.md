@@ -18,3 +18,10 @@ Untrusted sensor data is not a medical diagnosis. This helper does not claim phy
 3. Verify website, web app and Android use the same Firebase project, database paths and schema.
 4. Verify actual production read/write on an isolated test device, then clean up.
 5. Confirm legacy Supabase and MongoDB paths still function before merging.
+
+## Verified project and safe deployment (2026-11-01)
+Web client project ID: `bhilodiya-health-robo`; RTDB region: `asia-southeast1`. Public Vite identifiers are provided in `.env.production`; no service account credential is committed.
+
+**Do not blindly deploy `firebase.database.rules.json`.** It is a proposed minimum ruleset scoped to `users/{uid}/deviceStatus`; applying it as a complete rules replacement would remove permissions for pre-existing Health, ORA, and other production paths. Export the active production rules first, merge this subtree without losing existing policies, then run emulator tests against the merged rules and verify all legacy paths.
+
+The browser test record uses `users/{uid}/deviceStatus/dwiju-browser-test`, separate from physical device telemetry. A successful build or emulator test does not establish production database parity, Android APK signing, hardware ACK, or clinical validity.
