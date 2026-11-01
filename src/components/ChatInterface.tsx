@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeOraSpeech, oraSpeechLanguage } from "@/lib/oraSpeech";
 
 interface Message {
   id: string;
@@ -142,10 +143,10 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       window.speechSynthesis.cancel();
       setIsSpeaking(true);
       
-      const spokenText = text.replace(/[*#_`]/g, '').replace(/\s+/g, ' ').trim();
+      const spokenText = normalizeOraSpeech(text);
       if (!spokenText) { setIsSpeaking(false); return; }
       const utterance = new SpeechSynthesisUtterance(spokenText);
-      utterance.lang = /[\u0A80-\u0AFF]/.test(spokenText) ? 'gu-IN' : /[\u0900-\u097F]/.test(spokenText) ? 'hi-IN' : 'en-IN';
+      utterance.lang = oraSpeechLanguage(spokenText);
       utterance.pitch = 0.85;
       utterance.rate = 0.95;
       
