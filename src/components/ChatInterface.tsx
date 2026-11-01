@@ -142,14 +142,17 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       window.speechSynthesis.cancel();
       setIsSpeaking(true);
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'gu-IN';
+      const spokenText = text.replace(/[*#_`]/g, '').replace(/\s+/g, ' ').trim();
+      if (!spokenText) { setIsSpeaking(false); return; }
+      const utterance = new SpeechSynthesisUtterance(spokenText);
+      utterance.lang = /[\u0A80-\u0AFF]/.test(spokenText) ? 'gu-IN' : /[\u0900-\u097F]/.test(spokenText) ? 'hi-IN' : 'en-IN';
       utterance.pitch = 0.85;
       utterance.rate = 0.95;
       
       // Load voices and select best male voice
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
+        const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(utterance.lang.slice(0, 2).toLowerCase()));
         const gujaratiVoice = voices.find(v => v.lang.includes('gu'));
         const hindiVoice = voices.find(v => v.lang.includes('hi'));
         const maleVoice = voices.find(v => 
