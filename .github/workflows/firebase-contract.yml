@@ -18,6 +18,12 @@ jobs:
           distribution: temurin
           java-version: '17'
       - run: node scripts/verify-contract.mjs
+      - name: Verify ORA source evidence
+        run: node scripts/verify-ora-source.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ora-source-evidence
+          path: audit/ora-source-evidence.json
       - name: Install emulator test dependencies
         run: npm install --no-save --no-package-lock --legacy-peer-deps firebase@12 @firebase/rules-unit-testing@5 firebase-tools@14
       - name: Run Firebase database rules tests
