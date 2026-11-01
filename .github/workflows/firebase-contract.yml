@@ -26,5 +26,7 @@ jobs:
           path: audit/ora-source-evidence.json
       - name: Install emulator test dependencies
         run: npm install --no-save --no-package-lock --legacy-peer-deps firebase@12 @firebase/rules-unit-testing@5 firebase-tools@14
+      - name: ORA speech runtime tests
+        run: node --test tests/ora-speech.test.mjs
       - name: Run Firebase database rules tests
         run: npx firebase emulators:exec --only database --project dwiju-rules-ci 'node --test tests/firebase-emulator.test.mjs'
