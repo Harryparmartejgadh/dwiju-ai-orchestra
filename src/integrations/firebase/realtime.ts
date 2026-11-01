@@ -4,7 +4,7 @@
  * Install firebase SDK before importing this module.
  */
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getDatabase, onValue, ref, set, serverTimestamp, type Unsubscribe } from 'firebase/database';
 
 const config = {
@@ -15,6 +15,10 @@ const config = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+export function watchFirebaseAuth(onUser: (uid: string | null) => void): Unsubscribe {
+  const { auth } = services();
+  return onAuthStateChanged(auth, user => onUser(user?.uid ?? null));
+}
 export async function firebaseSignIn(email: string, password: string): Promise<void> {
   const { auth } = services();
   await signInWithEmailAndPassword(auth, email, password);
