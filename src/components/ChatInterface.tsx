@@ -156,7 +156,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
           v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female')
         );
         
-        utterance.voice = gujaratiVoice || hindiVoice || maleVoice || voices[0];
+        utterance.voice = matchingVoice || gujaratiVoice || hindiVoice || maleVoice || voices[0];
       };
       
       if (window.speechSynthesis.getVoices().length > 0) {
