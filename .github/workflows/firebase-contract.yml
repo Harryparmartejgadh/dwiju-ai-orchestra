@@ -1,4 +1,4 @@
-name: Firebase RTDB contract validation
+name: Firebase RTDB contract and emulator
 on:
   push:
     branches: [main, repair/firebase-contract-20261101]
@@ -6,9 +6,19 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_DATABASE_EMULATOR_HOST: 127.0.0.1:9000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
       - run: node scripts/verify-contract.mjs
+      - name: Install emulator test dependencies
+        run: npm install --no-save --no-package-lock --legacy-peer-deps firebase@12 @firebase/rules-unit-testing@5 firebase-tools@14
+      - name: Run Firebase database rules tests
+        run: npx firebase emulators:exec --only database --project dwiju-rules-ci 'node --test tests/firebase-emulator.test.mjs'
