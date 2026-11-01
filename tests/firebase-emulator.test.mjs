@@ -31,3 +31,15 @@ test('all shared paths isolate users',async()=>{
   await assertFails(get(ref(bob,key+'/alice')));
  }
 });
+
+test('web and Android clients share identical authenticated RTDB paths',async()=>{
+ const web=env.authenticatedContext('shared-user').database();
+ const android=env.authenticatedContext('shared-user').database();
+ for(const key of ['healthRecords','deviceTelemetry','deviceStatus','deviceCommands']){
+  const path=key+'/shared-user';
+  await assertSucceeds(set(ref(web,path),{source:'web',revision:1}));
+  assert.equal((await assertSucceeds(get(ref(android,path)))).val().revision,1);
+  await assertSucceeds(set(ref(android,path),{source:'android',revision:2}));
+  assert.equal((await assertSucceeds(get(ref(web,path)))).val().revision,2);
+ }
+});
