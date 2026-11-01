@@ -33,7 +33,7 @@ export function firebaseConfigured(): boolean {
 
 function services() {
   if (!firebaseConfigured()) throw new Error('Firebase is not configured; no live sync is available');
-  const app = getApps().length ? getApp() : initializeApp(config);
+  const app = getApps().find(existing => existing.options.projectId === config.projectId) ?? initializeApp(config, 'dwiju-firebase');
   return { auth: getAuth(app), db: getDatabase(app) };
 }
 
