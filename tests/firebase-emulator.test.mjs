@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
 import { ref, set, get } from 'firebase/database';
+import ts from 'typescript';
+const contractSource=readFileSync('src/integrations/firebase/contract.ts','utf8');
+const contractJs=ts.transpileModule(contractSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {dailyStepRecordPath,validateDailyStepRecord}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
 const projectId='dwiju-rules-ci';
 let env;
 test.before(async()=>{
@@ -117,4 +121,16 @@ test('web and Android step goal record parity with owner isolation',async()=>{
  assert.equal(updated.source,'PHONE_SENSOR');
  await assertFails(get(ref(other,path)));
  await assertFails(set(ref(other,path),{goal:1,observed:10000,verified:true}));
+});
+
+test('daily step contract rejects fabricated, invalid and cross-user paths',()=>{
+ assert.equal(dailyStepRecordPath('alice','2026-11-02'),'healthRecords/alice/dailySteps/2026-11-02');
+ assert.throws(()=>dailyStepRecordPath('../admin','2026-11-02'));
+ assert.throws(()=>dailyStepRecordPath('alice','2026-02-30'));
+ assert.throws(()=>dailyStepRecordPath('alice','2026-13-01'));
+ assert.deepEqual(validateDailyStepRecord({goal:8000,observed:null,verified:false,source:'NOT_CONNECTED'}),{goal:8000,observed:null,verified:false,source:'NOT_CONNECTED'});
+ assert.throws(()=>validateDailyStepRecord({goal:8000,observed:4000,verified:false,source:'NOT_CONNECTED'}));
+ assert.throws(()=>validateDailyStepRecord({goal:8000,observed:4000,verified:true,source:'NOT_CONNECTED'}));
+ assert.throws(()=>validateDailyStepRecord({goal:8000,observed:-1,verified:true,source:'PHONE_SENSOR'}));
+ assert.equal(validateDailyStepRecord({goal:8000,observed:4000,verified:true,source:'PHONE_SENSOR'}).observed,4000);
 });
