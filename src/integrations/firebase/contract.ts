@@ -49,3 +49,19 @@ export function updateDailyStepGoal(record: DailyStepRecord, goal: number): Dail
   const current = validateDailyStepRecord(record);
   return { ...current, goal };
 }
+
+/** Never treat an unverified step count as a measured health result. */
+export function dailyStepStatus(record: DailyStepRecord): {
+  goal: number; observed: number | null; remaining: number | null; progressPercent: number | null;
+} {
+  const valid = validateDailyStepRecord(record);
+  if (!valid.verified || valid.observed === null) {
+    return { goal: valid.goal, observed: null, remaining: null, progressPercent: null };
+  }
+  return {
+    goal: valid.goal,
+    observed: valid.observed,
+    remaining: Math.max(0, valid.goal - valid.observed),
+    progressPercent: Math.min(100, Math.floor((valid.observed / valid.goal) * 100))
+  };
+}
