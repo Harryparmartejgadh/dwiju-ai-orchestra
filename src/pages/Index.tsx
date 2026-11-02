@@ -5,9 +5,12 @@ import { FeatureCard } from "@/components/FeatureCard";
 import { ModuleSection } from "@/components/ModuleSection";
 import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
+import { dailyStepProgress } from "@/lib/deviceContract";
 
 const Index = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [dailyStepGoal, setDailyStepGoal] = useState(8000);
+  const stepProgress = dailyStepProgress(dailyStepGoal, null, false);
 
   const handleOpenChat = () => {
     setIsChatOpen(true);
@@ -122,6 +125,27 @@ const Index = () => {
       {/* Main Features */}
       <main className="container mx-auto px-4 py-20 space-y-24">
         
+        {/* Health step tracking: truthful UI until verified phone/ESP32 telemetry exists. */}
+        <section aria-label="દૈનિક પગલાંનું લક્ષ્ય" className="rounded-3xl border border-primary/20 bg-card p-6 shadow-lg space-y-4">
+          <h2 className="text-2xl font-bold text-foreground">દૈનિક પગલાં — Health AI</h2>
+          <p className="text-muted-foreground">લક્ષ્ય પસંદ કરો. Phone Sensor અથવા Firebase દ્વારા પ્રમાણિત પગલાં મળ્યા પછી જ વાસ્તવિક પ્રગતિ દેખાશે.</p>
+          <label htmlFor="daily-step-goal" className="block font-medium">દૈનિક લક્ષ્ય (પગલાં)</label>
+          <select id="daily-step-goal" value={dailyStepGoal} onChange={event => setDailyStepGoal(Number(event.target.value))} className="rounded-xl border bg-background p-3 text-foreground">
+            <option value={4000}>4,000</option>
+            <option value={6000}>6,000</option>
+            <option value={8000}>8,000</option>
+            <option value={10000}>10,000</option>
+            <option value={12000}>12,000</option>
+          </select>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div><p className="text-muted-foreground">લક્ષ્ય</p><p className="font-bold text-xl">{stepProgress.goal.toLocaleString("en-IN")}</p></div>
+            <div><p className="text-muted-foreground">ચાલેલા</p><p className="font-bold text-xl">{stepProgress.observed ?? "અજ્ઞાત"}</p></div>
+            <div><p className="text-muted-foreground">બાકી</p><p className="font-bold text-xl">{stepProgress.remaining ?? "અજ્ઞાત"}</p></div>
+            <div><p className="text-muted-foreground">પ્રગતિ</p><p className="font-bold text-xl">{stepProgress.percent === null ? "અજ્ઞાત" : stepProgress.percent + "%"}</p></div>
+          </div>
+          <p role="status" className="text-sm text-muted-foreground">Sensor: NOT CONNECTED · Live Sync: NOT VERIFIED · આ લક્ષ્ય હાલમાં માત્ર આ પેજમાં જ બદલાય છે.</p>
+        </section>
+
         {/* 1. CORE CAPABILITIES */}
         <ModuleSection
           title="Core Capabilities"
