@@ -100,3 +100,21 @@ test('step-goal records are owner-scoped and preserve goal versus observed steps
  await assertFails(get(ref(outsider,path)));
  await assertFails(set(ref(outsider,path),{goal:1000,observed:99999,verified:true}));
 });
+
+test('web and Android step goal record parity with owner isolation',async()=>{
+ const web=env.authenticatedContext('steps-user').database();
+ const android=env.authenticatedContext('steps-user').database();
+ const other=env.authenticatedContext('different-user').database();
+ const path='healthRecords/steps-user/dailySteps/2026-11-02';
+ await assertSucceeds(set(ref(web,path),{goal:8000,observed:null,verified:false,source:'NOT_CONNECTED'}));
+ const first=(await assertSucceeds(get(ref(android,path)))).val();
+ assert.equal(first.goal,8000);
+ assert.equal(first.verified,false);
+ await assertSucceeds(set(ref(android,path),{goal:10000,observed:4200,verified:true,source:'PHONE_SENSOR'}));
+ const updated=(await assertSucceeds(get(ref(web,path)))).val();
+ assert.equal(updated.goal,10000);
+ assert.equal(updated.observed,4200);
+ assert.equal(updated.source,'PHONE_SENSOR');
+ await assertFails(get(ref(other,path)));
+ await assertFails(set(ref(other,path),{goal:1,observed:10000,verified:true}));
+});
