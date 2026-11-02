@@ -97,3 +97,16 @@ export function deviceAvailability(value: unknown): DeviceAvailability {
   if (record.verified !== true || record.acknowledged !== true) return 'CONNECTED_UNVERIFIED';
   return 'LIVE_VERIFIED';
 }
+
+/** Guard against a stale ACK from an earlier command being reused for a new action. */
+export interface DeviceCommandReceipt {
+  commandId: string;
+  acknowledgedCommandId: string | null;
+  connected: boolean;
+  verified: boolean;
+}
+export function commandAcknowledged(receipt: DeviceCommandReceipt): boolean {
+  if (!receipt || typeof receipt.commandId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(receipt.commandId)) return false;
+  return receipt.connected === true && receipt.verified === true &&
+    receipt.acknowledgedCommandId === receipt.commandId;
+}
