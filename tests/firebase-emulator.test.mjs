@@ -6,7 +6,7 @@ import { ref, set, get } from 'firebase/database';
 import ts from 'typescript';
 const contractSource=readFileSync('src/integrations/firebase/contract.ts','utf8');
 const contractJs=ts.transpileModule(contractSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
+const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal,dailyStepStatus}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
 const projectId='dwiju-rules-ci';
 let env;
 test.before(async()=>{
@@ -143,4 +143,11 @@ test('changing daily goal never invents steps or changes sensor provenance',()=>
  assert.deepEqual(updateDailyStepGoal(connected,6000),{goal:6000,observed:3200,verified:true,source:'PHONE_SENSOR'});
  assert.throws(()=>updateDailyStepGoal(connected,0));
  assert.throws(()=>updateDailyStepGoal(disconnected,-100));
+});
+
+test('daily step progress never reports fabricated activity',()=>{
+ assert.deepEqual(dailyStepStatus({goal:8000,observed:null,verified:false,source:'NOT_CONNECTED'}),{goal:8000,observed:null,remaining:null,progressPercent:null});
+ assert.deepEqual(dailyStepStatus({goal:8000,observed:3200,verified:true,source:'PHONE_SENSOR'}),{goal:8000,observed:3200,remaining:4800,progressPercent:40});
+ assert.deepEqual(dailyStepStatus({goal:8000,observed:9000,verified:true,source:'ESP32_SENSOR'}),{goal:8000,observed:9000,remaining:0,progressPercent:100});
+ assert.throws(()=>dailyStepStatus({goal:8000,observed:3200,verified:false,source:'PHONE_SENSOR'}));
 });
