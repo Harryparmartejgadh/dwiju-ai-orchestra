@@ -6,7 +6,7 @@ import { ref, set, get } from 'firebase/database';
 import ts from 'typescript';
 const contractSource=readFileSync('src/integrations/firebase/contract.ts','utf8');
 const contractJs=ts.transpileModule(contractSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {dailyStepRecordPath,validateDailyStepRecord}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
+const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
 const projectId='dwiju-rules-ci';
 let env;
 test.before(async()=>{
@@ -133,4 +133,14 @@ test('daily step contract rejects fabricated, invalid and cross-user paths',()=>
  assert.throws(()=>validateDailyStepRecord({goal:8000,observed:4000,verified:true,source:'NOT_CONNECTED'}));
  assert.throws(()=>validateDailyStepRecord({goal:8000,observed:-1,verified:true,source:'PHONE_SENSOR'}));
  assert.equal(validateDailyStepRecord({goal:8000,observed:4000,verified:true,source:'PHONE_SENSOR'}).observed,4000);
+});
+
+test('changing daily goal never invents steps or changes sensor provenance',()=>{
+ const disconnected={goal:8000,observed:null,verified:false,source:'NOT_CONNECTED'};
+ assert.deepEqual(updateDailyStepGoal(disconnected,10000),{goal:10000,observed:null,verified:false,source:'NOT_CONNECTED'});
+ assert.equal(disconnected.goal,8000);
+ const connected={goal:8000,observed:3200,verified:true,source:'PHONE_SENSOR'};
+ assert.deepEqual(updateDailyStepGoal(connected,6000),{goal:6000,observed:3200,verified:true,source:'PHONE_SENSOR'});
+ assert.throws(()=>updateDailyStepGoal(connected,0));
+ assert.throws(()=>updateDailyStepGoal(disconnected,-100));
 });
