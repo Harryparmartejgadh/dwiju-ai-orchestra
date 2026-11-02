@@ -41,3 +41,11 @@ export function validateDailyStepRecord(value: unknown): DailyStepRecord {
     source: record.source as DailyStepRecord['source']
   };
 }
+
+/** Immutable patch for a selected daily goal: never manufacture or verify steps. */
+export function updateDailyStepGoal(record: DailyStepRecord, goal: number): DailyStepRecord {
+  if (!Number.isSafeInteger(goal) || goal <= 0 || goal > 100000)
+    throw new Error('Invalid step goal');
+  const current = validateDailyStepRecord(record);
+  return { ...current, goal };
+}
