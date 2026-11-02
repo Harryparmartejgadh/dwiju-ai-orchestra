@@ -28,7 +28,7 @@ const fs = require('node:fs');
     await assertFails(a.ref('users/userA/ora/private').set({ enabled: true }));
     await assertFails(a.ref('users/userA/deviceStatus').set(null));
     await assertFails(a.ref('users/userA/deviceStatus/test').set(null));
-    await assertFails(a.ref('users/userA/deviceStatus/bad.id').set({ status: 'forged' }));
+    await assertFails(a.ref('users/userA/deviceStatus/bad id').set({ status: 'forged' }));
     await assertFails(a.ref('users/userA/deviceStatus/test/updatedAt').set(0));
     await assertFails(guest.ref('/').once('value'));
     await assertFails(a.ref('/').set({ users: {} }));
