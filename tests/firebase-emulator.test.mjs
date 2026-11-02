@@ -6,7 +6,7 @@ import { ref, set, get } from 'firebase/database';
 import ts from 'typescript';
 const contractSource=readFileSync('src/integrations/firebase/contract.ts','utf8');
 const contractJs=ts.transpileModule(contractSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal,dailyStepStatus,selectedHealthReading}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
+const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal,dailyStepStatus,selectedHealthReading,deviceAvailability}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
 const projectId='dwiju-rules-ci';
 let env;
 test.before(async()=>{
@@ -162,4 +162,12 @@ test('health mode cannot mix camera and sensor BPM or fabricate unverified measu
  assert.throws(()=>selectedHealthReading('CAMERA',{source:'CAMERA',verified:false,bpm:76},null));
  assert.deepEqual(selectedHealthReading('CAMERA',{source:'CAMERA',verified:false,bpm:null},null),{source:'CAMERA',verified:false,bpm:null});
  assert.throws(()=>selectedHealthReading('SENSOR',null,{source:'SENSOR',verified:true,bpm:999}));
+});
+
+test('device cannot become live without connection verification and hardware ACK',()=>{
+ assert.equal(deviceAvailability(null),'HARDWARE_REQUIRED');
+ assert.equal(deviceAvailability({connected:false,verified:true,acknowledged:true}),'HARDWARE_REQUIRED');
+ assert.equal(deviceAvailability({connected:true,verified:false,acknowledged:true}),'CONNECTED_UNVERIFIED');
+ assert.equal(deviceAvailability({connected:true,verified:true,acknowledged:false}),'CONNECTED_UNVERIFIED');
+ assert.equal(deviceAvailability({connected:true,verified:true,acknowledged:true}),'LIVE_VERIFIED');
 });
