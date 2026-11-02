@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { firebaseConfigured, firebaseSignIn, firebaseSignOut, watchFirebaseAuth, watchUserDeviceStatus } from '@/integrations/firebase/realtime';
+import { firebaseConfigured, firebaseSignIn, firebaseSignOut, watchFirebaseAuth, watchUserProductionCollection } from '@/integrations/firebase/realtime';
 
 export function FirebaseConnectionPanel() {
   const [message, setMessage] = useState('Not connected');
@@ -17,7 +17,7 @@ export function FirebaseConnectionPanel() {
       return;
     }
     try {
-      const stop = watchUserDeviceStatus('dwiju-browser-test', data => {
+      const stop = watchUserProductionCollection('deviceStatus', data => {
         setMessage(data ? 'Authenticated Firebase device status received' : 'Connected; no device status yet');
       }, () => setMessage('Firebase read denied or connection failed'));
       return () => stop();
