@@ -154,11 +154,6 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(utterance.lang.slice(0, 2).toLowerCase()));
-        const gujaratiVoice = voices.find(v => v.lang.includes('gu'));
-        const hindiVoice = voices.find(v => v.lang.includes('hi'));
-        const maleVoice = voices.find(v => 
-          v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female')
-        );
         
         // Do not silently speak Gujarati with a Hindi/English voice.
         utterance.voice = matchingVoice || null;
