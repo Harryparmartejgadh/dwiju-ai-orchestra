@@ -99,7 +99,7 @@ test('step-goal records are owner-scoped and preserve goal versus observed steps
  await assertSucceeds(set(ref(owner,path),{goal:8000,observed:null,source:'NOT_CONNECTED',verified:false}));
  const record=(await assertSucceeds(get(ref(owner,path)))).val();
  assert.equal(record.goal,8000);
- assert.equal(record.observed,null);
+ assert.equal(record.observed,undefined); // RTDB omits null-valued child keys
  assert.equal(record.verified,false);
  await assertFails(get(ref(outsider,path)));
  await assertFails(set(ref(outsider,path),{goal:1000,observed:99999,verified:true}));
