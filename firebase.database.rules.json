@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        "deviceStatus": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$deviceId": {
+            ".write": "auth != null && auth.uid === $uid && newData.exists() && $deviceId.matches(/^[a-zA-Z0-9_-]{1,80}$/)",
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now"
+            }
+          }
+        },
+        "healthRecords": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false
+        },
+        "deviceTelemetry": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false
+        },
+        "deviceCommands": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false
+        }
+      }
+    }
+  }
+}
