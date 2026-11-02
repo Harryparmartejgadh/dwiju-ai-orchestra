@@ -87,3 +87,16 @@ test('robot emergency commands remain pending without hardware acknowledgement',
  assert.equal(cmd.acknowledgedAt,undefined);
  assert.equal(cmd.hardwareRequired,true);
 });
+
+test('step-goal records are owner-scoped and preserve goal versus observed steps',async()=>{
+ const owner=env.authenticatedContext('walker').database();
+ const outsider=env.authenticatedContext('other-walker').database();
+ const path='healthRecords/walker/dailySteps/2026-11-02';
+ await assertSucceeds(set(ref(owner,path),{goal:8000,observed:0,source:'NOT_CONNECTED',verified:false}));
+ const record=(await assertSucceeds(get(ref(owner,path)))).val();
+ assert.equal(record.goal,8000);
+ assert.equal(record.observed,0);
+ assert.equal(record.verified,false);
+ await assertFails(get(ref(outsider,path)));
+ await assertFails(set(ref(outsider,path),{goal:1000,observed:99999,verified:true}));
+});
