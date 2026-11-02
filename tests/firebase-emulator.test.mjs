@@ -6,7 +6,7 @@ import { ref, set, get } from 'firebase/database';
 import ts from 'typescript';
 const contractSource=readFileSync('src/integrations/firebase/contract.ts','utf8');
 const contractJs=ts.transpileModule(contractSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal,dailyStepStatus}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
+const {dailyStepRecordPath,validateDailyStepRecord,updateDailyStepGoal,dailyStepStatus,selectedHealthReading}=await import('data:text/javascript;base64,'+Buffer.from(contractJs).toString('base64'));
 const projectId='dwiju-rules-ci';
 let env;
 test.before(async()=>{
@@ -150,4 +150,16 @@ test('daily step progress never reports fabricated activity',()=>{
  assert.deepEqual(dailyStepStatus({goal:8000,observed:3200,verified:true,source:'PHONE_SENSOR'}),{goal:8000,observed:3200,remaining:4800,progressPercent:40});
  assert.deepEqual(dailyStepStatus({goal:8000,observed:9000,verified:true,source:'ESP32_SENSOR'}),{goal:8000,observed:9000,remaining:0,progressPercent:100});
  assert.throws(()=>dailyStepStatus({goal:8000,observed:3200,verified:false,source:'PHONE_SENSOR'}));
+});
+
+test('health mode cannot mix camera and sensor BPM or fabricate unverified measurements',()=>{
+ const camera={source:'CAMERA',verified:true,bpm:76};
+ const sensor={source:'SENSOR',verified:true,bpm:82};
+ assert.deepEqual(selectedHealthReading('CAMERA',camera,sensor),camera);
+ assert.deepEqual(selectedHealthReading('SENSOR',camera,sensor),sensor);
+ assert.equal(selectedHealthReading('CAMERA',null,sensor),null);
+ assert.throws(()=>selectedHealthReading('CAMERA',sensor,camera));
+ assert.throws(()=>selectedHealthReading('CAMERA',{source:'CAMERA',verified:false,bpm:76},null));
+ assert.deepEqual(selectedHealthReading('CAMERA',{source:'CAMERA',verified:false,bpm:null},null),{source:'CAMERA',verified:false,bpm:null});
+ assert.throws(()=>selectedHealthReading('SENSOR',null,{source:'SENSOR',verified:true,bpm:999}));
 });
