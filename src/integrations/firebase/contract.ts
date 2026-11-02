@@ -83,7 +83,7 @@ export function selectedHealthReading(mode: HealthReadingMode, camera: HealthRea
     if (reading.bpm !== null) throw new Error('Unverified BPM must remain unknown');
     return { source: mode, verified: false, bpm: null };
   }
-  if (!Number.isFinite(reading.bpm) || !Number.isInteger(reading.bpm) || (reading.bpm as number) < 20 || (reading.bpm as number) > 250)
+  if (typeof reading.bpm !== 'number' || !Number.isInteger(reading.bpm) || reading.bpm < 20 || reading.bpm > 250)
     throw new Error('Invalid measured BPM');
   return { source: mode, verified: true, bpm: reading.bpm };
 }
