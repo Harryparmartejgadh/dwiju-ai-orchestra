@@ -87,3 +87,13 @@ export function selectedHealthReading(mode: HealthReadingMode, camera: HealthRea
     throw new Error('Invalid measured BPM');
   return { source: mode, verified: true, bpm: reading.bpm };
 }
+
+/** A disconnected device must never be represented as a working live device. */
+export type DeviceAvailability = 'HARDWARE_REQUIRED' | 'CONNECTED_UNVERIFIED' | 'LIVE_VERIFIED';
+export function deviceAvailability(value: unknown): DeviceAvailability {
+  if (!value || typeof value !== 'object') return 'HARDWARE_REQUIRED';
+  const record = value as Record<string, unknown>;
+  if (record.connected !== true) return 'HARDWARE_REQUIRED';
+  if (record.verified !== true || record.acknowledged !== true) return 'CONNECTED_UNVERIFIED';
+  return 'LIVE_VERIFIED';
+}
