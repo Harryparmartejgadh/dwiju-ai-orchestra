@@ -25,3 +25,12 @@ Web client project ID: `bhilodiya-health-robo`; RTDB region: `asia-southeast1`. 
 **Do not blindly deploy `firebase.database.rules.json`.** It is a proposed minimum ruleset scoped to `users/{uid}/deviceStatus`; applying it as a complete rules replacement would remove permissions for pre-existing Health, ORA, and other production paths. Export the active production rules first, merge this subtree without losing existing policies, then run emulator tests against the merged rules and verify all legacy paths.
 
 The browser test record uses `users/{uid}/deviceStatus/dwiju-browser-test`, separate from physical device telemetry. A successful build or emulator test does not establish production database parity, Android APK signing, hardware ACK, or clinical validity.
+
+## Android Termux: non-destructive production rules backup (2026-11-02)
+Run the following in Termux **after signing in to the Firebase CLI with the Google account that owns the project**. It exports the active RTDB rules; it does not deploy, overwrite, or modify any production data:
+
+```sh
+pkg install -y nodejs-lts curl && npm install -g firebase-tools && firebase login --no-localhost && mkdir -p "$HOME/dwiju-firebase-backup" && firebase database:rules:get --project bhilodiya-health-robo --instance bhilodiya-health-robo-default-rtdb > "$HOME/dwiju-firebase-backup/rules-production-$(date +%Y%m%d-%H%M%S).json" && ls -lh "$HOME/dwiju-firebase-backup"/rules-production-*.json
+```
+
+Do not execute `firebase deploy --only database` with this branch's standalone `firebase.database.rules.json`; that would replace the complete active ruleset. First merge existing production policies with the proposed subtree, and test the merged file with the emulator. No new paid Firebase service is required for the backup command.
