@@ -59,3 +59,31 @@ test('device command queue and telemetry remain owner scoped without inventing A
  assert.equal((await assertSucceeds(get(ref(owner,telemetryPath)))).val().verified,false);
  await assertFails(get(ref(outsider,telemetryPath)));
 });
+
+test('health camera and sensor readings are isolated by source without inventing medical data',async()=>{
+ const owner=env.authenticatedContext('health-user').database();
+ const outsider=env.authenticatedContext('another-user').database();
+ const camera='healthRecords/health-user/camera';
+ const sensor='healthRecords/health-user/sensor';
+ await assertSucceeds(set(ref(owner,camera),{source:'camera',verified:false,status:'UNVERIFIED',capturedAt:100}));
+ await assertSucceeds(set(ref(owner,sensor),{source:'sensor',verified:false,status:'HARDWARE_REQUIRED',capturedAt:101}));
+ const cameraReading=(await assertSucceeds(get(ref(owner,camera)))).val();
+ const sensorReading=(await assertSucceeds(get(ref(owner,sensor)))).val();
+ assert.equal(cameraReading.source,'camera');
+ assert.equal(sensorReading.source,'sensor');
+ assert.equal(cameraReading.bpm,undefined);
+ assert.equal(sensorReading.bpm,undefined);
+ assert.equal(sensorReading.status,'HARDWARE_REQUIRED');
+ await assertFails(get(ref(outsider,camera)));
+ await assertFails(get(ref(outsider,sensor)));
+});
+test('robot emergency commands remain pending without hardware acknowledgement',async()=>{
+ const owner=env.authenticatedContext('robot-user').database();
+ const path='deviceCommands/robot-user/emergency-stop';
+ await assertSucceeds(set(ref(owner,path),{action:'EMERGENCY_STOP',status:'PENDING',requestedAt:200,hardwareRequired:true}));
+ const cmd=(await assertSucceeds(get(ref(owner,path)))).val();
+ assert.equal(cmd.action,'EMERGENCY_STOP');
+ assert.equal(cmd.status,'PENDING');
+ assert.equal(cmd.acknowledgedAt,undefined);
+ assert.equal(cmd.hardwareRequired,true);
+});
