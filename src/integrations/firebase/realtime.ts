@@ -5,7 +5,7 @@
  */
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { getDatabase, onValue, ref, set, serverTimestamp, type Unsubscribe } from 'firebase/database';
+import { getDatabase, onValue, ref, type Unsubscribe } from 'firebase/database';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -43,21 +43,15 @@ function services() {
   return { auth: getAuth(app), db: getDatabase(app) };
 }
 
-/** Authenticated users can only write within their own namespace. */
-export async function writeUserDeviceStatus(deviceId: string, status: unknown): Promise<void> {
-  const { auth, db } = services();
-  const uid = auth.currentUser?.uid;
-  if (!uid) throw new Error('Firebase authentication required');
-  if (!/^[a-zA-Z0-9_-]{1,80}$/.test(deviceId)) throw new Error('Invalid device ID');
-  await set(ref(db, `users/${uid}/deviceStatus/${deviceId}`), { status, updatedAt: serverTimestamp() });
-}
-
+/** Production rules allow only a trusted deviceGateway to write deviceStatus.
+ * Browsers must never write or fabricate physical device state.
+ */
 export function watchUserDeviceStatus(deviceId: string, onData: (data: unknown) => void, onError: (error: Error) => void): Unsubscribe {
   const { auth, db } = services();
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('Firebase authentication required');
   if (!/^[a-zA-Z0-9_-]{1,80}$/.test(deviceId)) throw new Error('Invalid device ID');
-  return onValue(ref(db, `users/${uid}/deviceStatus/${deviceId}`), snap => onData(snap.val()), onError);
+  return onValue(ref(db, `deviceStatus/${uid}/${deviceId}`), snap => onData(snap.val()), onError);
 }
 
 /**
@@ -79,5 +73,5 @@ export function watchUserReadOnlyCollection(
     throw new Error('Invalid Firebase collection');
   }
   if (!/^[a-zA-Z0-9_-]{1,80}$/.test(recordId)) throw new Error('Invalid record ID');
-  return onValue(ref(db, `users/${uid}/${collection}/${recordId}`), snap => onData(snap.val()), onError);
+  return onValue(ref(db, `${collection}/${uid}/${recordId}`), snap => onData(snap.val()), onError);
 }
