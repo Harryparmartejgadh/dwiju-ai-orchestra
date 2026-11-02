@@ -22,6 +22,13 @@ const fs = require('node:fs');
       await assertSucceeds(a.ref('users/userA/' + collection).once('value'));
     }
     await assertFails(a.ref('users/userA').once('value'));
+    // Prevent users from accessing other namespaces or changing the root.
+    await assertFails(a.ref('users/userB/deviceStatus/test').set({ status: 'forged' }));
+    await assertFails(a.ref('users/userA/ora/private').once('value'));
+    await assertFails(a.ref('users/userA/ora/private').set({ enabled: true }));
+    await assertFails(a.ref('users/userA/deviceStatus').set(null));
+    await assertFails(guest.ref('/').once('value'));
+    await assertFails(a.ref('/').set({ users: {} }));
     console.log('Firebase RTDB security isolation and path scope: PASS');
   } finally { await env.cleanup(); }
 })().catch(err => { console.error(err); process.exitCode = 1; });
