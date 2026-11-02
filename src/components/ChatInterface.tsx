@@ -160,7 +160,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
           v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female')
         );
         
-        utterance.voice = matchingVoice || gujaratiVoice || hindiVoice || maleVoice || voices[0];
+        // Do not silently speak Gujarati with a Hindi/English voice.\n        utterance.voice = matchingVoice || null;
       };
       
       if (window.speechSynthesis.getVoices().length > 0) {
