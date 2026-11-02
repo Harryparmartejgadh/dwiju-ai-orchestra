@@ -4,7 +4,9 @@
       "$uid": {
         "deviceStatus": {
           ".read": "auth != null && auth.uid === $uid",
-          ".write": "auth != null && auth.uid === $uid"
+          "$deviceId": {
+            ".write": "auth != null && auth.uid === $uid && newData.exists() && $deviceId.matches(/^[a-zA-Z0-9_-]{1,80}$/)"
+          }
         },
         "healthRecords": {
           ".read": "auth != null && auth.uid === $uid",
