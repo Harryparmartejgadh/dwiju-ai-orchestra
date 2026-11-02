@@ -65,3 +65,25 @@ export function dailyStepStatus(record: DailyStepRecord): {
     progressPercent: Math.min(100, Math.floor((valid.observed / valid.goal) * 100))
   };
 }
+
+/** Display only the selected measurement source; never mix camera and ESP32 readings. */
+export type HealthReadingMode = 'CAMERA' | 'SENSOR';
+export interface HealthReading {
+  source: 'CAMERA' | 'SENSOR';
+  verified: boolean;
+  bpm: number | null;
+}
+export function selectedHealthReading(mode: HealthReadingMode, camera: HealthReading | null, sensor: HealthReading | null): HealthReading | null {
+  if (mode !== 'CAMERA' && mode !== 'SENSOR') throw new Error('Invalid health mode');
+  const reading = mode === 'CAMERA' ? camera : sensor;
+  if (reading === null) return null;
+  if (!reading || reading.source !== mode || typeof reading.verified !== 'boolean')
+    throw new Error('Invalid health reading provenance');
+  if (!reading.verified) {
+    if (reading.bpm !== null) throw new Error('Unverified BPM must remain unknown');
+    return { source: mode, verified: false, bpm: null };
+  }
+  if (!Number.isFinite(reading.bpm) || !Number.isInteger(reading.bpm) || (reading.bpm as number) < 20 || (reading.bpm as number) > 250)
+    throw new Error('Invalid measured BPM');
+  return { source: mode, verified: true, bpm: reading.bpm };
+}
