@@ -13,3 +13,31 @@ export function dailyStepRecordPath(uid: string, date: string): string {
     throw new Error('Invalid calendar date');
   return userDataPath('healthRecords', uid) + '/dailySteps/' + date;
 }
+
+export interface DailyStepRecord {
+  goal: number;
+  observed: number | null;
+  verified: boolean;
+  source: 'NOT_CONNECTED' | 'PHONE_SENSOR' | 'ESP32_SENSOR';
+}
+/** Strictly separate user-selected goal from verified hardware activity. */
+export function validateDailyStepRecord(value: unknown): DailyStepRecord {
+  if (!value || typeof value !== 'object') throw new Error('Invalid step record');
+  const record = value as Record<string, unknown>;
+  if (!Number.isSafeInteger(record.goal) || (record.goal as number) <= 0 || (record.goal as number) > 100000)
+    throw new Error('Invalid step goal');
+  const verified = record.verified === true;
+  if (typeof record.verified !== 'boolean') throw new Error('Invalid verification flag');
+  if (!['NOT_CONNECTED','PHONE_SENSOR','ESP32_SENSOR'].includes(String(record.source)))
+    throw new Error('Invalid step source');
+  if (verified && record.source === 'NOT_CONNECTED') throw new Error('Unverified sensor source');
+  if (!verified && record.observed !== null) throw new Error('Unverified activity must be unknown');
+  if (verified && (!Number.isSafeInteger(record.observed) || (record.observed as number) < 0))
+    throw new Error('Invalid verified steps');
+  return {
+    goal: record.goal as number,
+    observed: verified ? record.observed as number : null,
+    verified,
+    source: record.source as DailyStepRecord['source']
+  };
+}
