@@ -75,3 +75,19 @@ export function watchUserReadOnlyCollection(
   if (!/^[a-zA-Z0-9_-]{1,80}$/.test(recordId)) throw new Error('Invalid record ID');
   return onValue(ref(db, `${collection}/${uid}/${recordId}`), snap => onData(snap.val()), onError);
 }
+
+/** Read authenticated root-level production collections without inventing a record ID. */
+export type DwijuProductionCollection = DwijuReadOnlyCollection | 'projectRecords' | 'deviceStatus';
+export function watchUserProductionCollection(
+  collection: DwijuProductionCollection,
+  onData: (data: unknown) => void,
+  onError: (error: Error) => void,
+): Unsubscribe {
+  const { auth, db } = services();
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('Firebase authentication required');
+  if (!['healthRecords', 'deviceTelemetry', 'deviceCommands', 'projectRecords', 'deviceStatus'].includes(collection)) {
+    throw new Error('Invalid Firebase collection');
+  }
+  return onValue(ref(db, `${collection}/${uid}`), snap => onData(snap.val()), onError);
+}
