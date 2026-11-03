@@ -50,8 +50,10 @@ export function offlineAnswer(prompt: string, locale?: string): OfflineReply | n
     ? "gu"
     : /[\u0900-\u097F]/.test(text)
       ? "hi"
-      : String(locale || "").toLowerCase().startsWith("en")
+      : /[A-Za-z]/.test(text)
         ? "en"
+        : String(locale || "").toLowerCase().startsWith("en")
+          ? "en"
         : String(locale || "").toLowerCase().startsWith("hi")
           ? "hi"
           : "gu";

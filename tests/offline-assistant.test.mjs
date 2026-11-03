@@ -5,7 +5,7 @@ import { offlineAnswer, DWJ_GU_GREETING } from '../src/lib/offlineAssistant.ts';
 test('Dwiju identity answers use the requested language and exact Gujarati greeting', () => {
   assert.equal(offlineAnswer('તમારું નામ શું છે?', 'en-US')?.answer, DWJ_GU_GREETING);
   assert.match(offlineAnswer('आप कौन हैं?', 'gu-IN')?.answer ?? '', /मेरा नाम द्विजु है/);
-  assert.match(offlineAnswer('Who are you?', 'en-US')?.answer ?? '', /My name is Dwiju/);
+  assert.match(offlineAnswer('Who are you?', 'gu-IN')?.answer ?? '', /My name is Dwiju/);
 });
 
 test('catalog counts are labeled as catalog data, not live executions', () => {
