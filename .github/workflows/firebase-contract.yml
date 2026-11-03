@@ -36,5 +36,7 @@ jobs:
         run: npm run build
       - name: ORA speech runtime tests
         run: node --test tests/ora-speech.test.mjs tests/device-contract.test.mjs
+      - name: Offline Ask Dwiju contract tests
+        run: node --experimental-strip-types --test tests/offline-assistant.test.mjs
       - name: Run Firebase database rules tests
         run: npx firebase emulators:exec --only database --project dwiju-rules-ci 'node --test tests/firebase-emulator.test.mjs'
