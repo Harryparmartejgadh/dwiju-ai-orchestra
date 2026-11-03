@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeOraSpeech, oraSpeechLanguage } from "@/lib/oraSpeech";
+import { DWJ_GU_GREETING, offlineAnswer } from "@/lib/offlineAssistant";
 
 interface Message {
   id: string;
@@ -54,7 +56,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
     }
     return [{
       id: "1",
-      text: "નમસ્તે! હું Dwiju છું, તમારો AI Assistant. હું જોઈ શકું છું 👁️, બોલી શકું છું 🎤, સાંભળી શકું છું 👂, અને છબીઓ બનાવી શકું છું 🎨. તમને કેવી રીતે મદદ કરી શકું?",
+      text: DWJ_GU_GREETING,
       sender: "dwiju",
       timestamp: new Date(),
     }];
@@ -142,21 +144,20 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       window.speechSynthesis.cancel();
       setIsSpeaking(true);
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'gu-IN';
+      const spokenText = normalizeOraSpeech(text);
+      if (!spokenText) { setIsSpeaking(false); return; }
+      const utterance = new SpeechSynthesisUtterance(spokenText);
+      utterance.lang = oraSpeechLanguage(spokenText);
       utterance.pitch = 0.85;
       utterance.rate = 0.95;
       
       // Load voices and select best male voice
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
-        const gujaratiVoice = voices.find(v => v.lang.includes('gu'));
-        const hindiVoice = voices.find(v => v.lang.includes('hi'));
-        const maleVoice = voices.find(v => 
-          v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female')
-        );
+        const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(utterance.lang.slice(0, 2).toLowerCase()));
         
-        utterance.voice = gujaratiVoice || hindiVoice || maleVoice || voices[0];
+        // Do not silently speak Gujarati with a Hindi/English voice.
+        utterance.voice = matchingVoice || null;
       };
       
       if (window.speechSynthesis.getVoices().length > 0) {
@@ -255,6 +256,23 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
       setSelectedImage(null);
     }
 
+    if (currentMode === "chat" && !imageToSend) {
+      const localReply = offlineAnswer(userMessage.text, navigator.language);
+      if (localReply) {
+        const dwijuResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: localReply.answer,
+          sender: "dwiju",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, dwijuResponse]);
+        if (replyMode === "voice" || replyMode === "both") {
+          setTimeout(() => speakText(localReply.answer), 0);
+        }
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -316,6 +334,24 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
     } catch (error: any) {
       console.error("Chat error:", error);
       
+      const localReply = currentMode === "chat" && !imageToSend
+        ? offlineAnswer(userMessage.text, navigator.language)
+        : null;
+      if (localReply) {
+        const fallbackMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: localReply.answer,
+          sender: "dwiju",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, fallbackMessage]);
+        if (replyMode === "voice" || replyMode === "both") {
+          setTimeout(() => speakText(localReply.answer), 0);
+        }
+        setIsLoading(false);
+        return;
+      }
+
       let errorText = "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો.";
       let isApiKeyError = false;
       
@@ -405,7 +441,7 @@ export const ChatInterface = ({ isOpen: externalIsOpen, onOpenChange }: ChatInte
                     localStorage.removeItem('dwiju-chat-history');
                     setMessages([{
                       id: "1",
-                      text: "નમસ્તે! હું Dwiju છું, તમારો AI Assistant. હું જોઈ શકું છું 👁️, બોલી શકું છું 🎤, સાંભળી શકું છું 👂, અને છબીઓ બનાવી શકું છું 🎨. તમને કેવી રીતે મદદ કરી શકું?",
+                      text: DWJ_GU_GREETING,
                       sender: "dwiju",
                       timestamp: new Date(),
                     }]);

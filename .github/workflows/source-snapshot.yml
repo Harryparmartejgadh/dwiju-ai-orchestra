@@ -1,0 +1,33 @@
+name: Dwiju cumulative source snapshot
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - repair/firebase-contract-20261101
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Package complete repository source without deleting files
+        run: |
+          mkdir -p dist
+          git archive --format=zip --output=dist/dwiju-orchestra-source.zip HEAD
+          unzip -t dist/dwiju-orchestra-source.zip
+          echo "Source snapshot SHA: $(git rev-parse HEAD)"
+      - name: Verify archive contains project entrypoints and tests
+        run: |
+          for required in package.json src/pages/Index.tsx src/integrations/firebase/contract.ts firebase/database.rules.json tests/firebase-emulator.test.mjs; do
+            unzip -Z1 dist/dwiju-orchestra-source.zip | grep -Fx "$required" || exit 1
+          done
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: dwiju-orchestra-source
+          path: dist/dwiju-orchestra-source.zip
+          if-no-files-found: error
+          retention-days: 30

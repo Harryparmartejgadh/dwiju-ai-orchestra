@@ -1,0 +1,42 @@
+name: Firebase RTDB contract and emulator
+on:
+  push:
+    branches: [main, repair/firebase-contract-20261101]
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_DATABASE_EMULATOR_HOST: 127.0.0.1:9000
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: No-loss source and route regression gate
+        env:
+          NO_LOSS_SCOPE: 'src/'
+        run: node scripts/no-loss-gate.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: node scripts/verify-contract.mjs
+      - name: Verify ORA source evidence
+        run: node scripts/verify-ora-source.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ora-source-evidence
+          path: audit/ora-source-evidence.json
+      - name: Install emulator test dependencies
+        run: npm install --no-save --no-package-lock --legacy-peer-deps firebase@12 @firebase/rules-unit-testing@5 firebase-tools@14
+      - name: Build shared Website and Web App UI
+        run: npm run build
+      - name: ORA speech runtime tests
+        run: node --test tests/ora-speech.test.mjs tests/device-contract.test.mjs
+      - name: Offline Ask Dwiju contract tests
+        run: node --experimental-strip-types --test tests/offline-assistant.test.mjs
+      - name: Run Firebase database rules tests
+        run: npx firebase emulators:exec --only database --project dwiju-rules-ci 'node --test tests/firebase-emulator.test.mjs'
